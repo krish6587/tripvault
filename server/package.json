@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "node test-backend.js"
   },
   "keywords": ["tripvault", "express", "auth", "jwt", "mongodb"],
   "author": "",
