@@ -5,17 +5,18 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
+// Helper to evaluate token dynamically on root navigation
+const RootRoute = () => {
   const token = localStorage.getItem('token');
+  return token ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+};
 
+function App() {
   return (
     <Router>
       <Routes>
         {/* Root Route: Redirects to dashboard if logged in, otherwise to login */}
-        <Route
-          path="/"
-          element={token ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />}
-        />
+        <Route path="/" element={<RootRoute />} />
 
         {/* Public Authentication Routes */}
         <Route path="/login" element={<Login />} />

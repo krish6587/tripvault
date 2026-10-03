@@ -8,7 +8,13 @@
     "dev": "nodemon index.js",
     "test": "node test-backend.js"
   },
-  "keywords": ["tripvault", "express", "auth", "jwt", "mongodb"],
+  "keywords": [
+    "tripvault",
+    "express",
+    "auth",
+    "jwt",
+    "mongodb"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -20,6 +26,7 @@
     "mongoose": "^8.9.5"
   },
   "devDependencies": {
+    "mongodb-memory-server": "^11.3.0",
     "nodemon": "^3.1.9"
   }
 }
