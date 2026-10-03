@@ -87,7 +87,7 @@ Create a `.env` file in the `server/` directory using the provided `server/.env.
 ```env
 # server/.env
 PORT=5000
-MONGO_URI=mongodb+srv://<username>:<password>@cluster0.ra7czqv.mongodb.net/tripvault?retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/tripvault?retryWrites=true&w=majority
 JWT_SECRET=your_jwt_secret_key_here
 CLIENT_URL=http://localhost:5173
 ```
