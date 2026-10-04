@@ -2,7 +2,7 @@
 
 > A secure, full-stack travel memory journal built as part of the **CodGen Full Stack Internship Week 1**.
 
-TripVault provides authentication architecture for travelers to safely create accounts, sign in, and access their personalized protected travel dashboard using JSON Web Tokens (JWT) and MongoDB.
+TripVault provides a production-grade authentication architecture for travelers to safely create accounts, sign in, and access their personalized protected travel dashboard using JSON Web Tokens (JWT) and MongoDB Atlas.
 
 ---
 
@@ -11,7 +11,8 @@ TripVault provides authentication architecture for travelers to safely create ac
 ### Backend
 - **Runtime:** [Node.js](https://nodejs.org/)
 - **Framework:** [Express.js](https://expressjs.com/)
-- **Database:** [MongoDB](https://www.mongodb.com/) (with [Mongoose ODM](https://mongoosejs.com/))
+- **Database:** [MongoDB Atlas](https://www.mongodb.com/atlas) (with [Mongoose ODM](https://mongoosejs.com/))
+- **Security:** [Helmet](https://helmetjs.github.io/), [express-rate-limit](https://www.npmjs.com/package/express-rate-limit)
 - **Password Hashing:** [bcryptjs](https://www.npmjs.com/package/bcryptjs)
 - **Authentication:** [jsonwebtoken (JWT)](https://www.npmjs.com/package/jsonwebtoken)
 - **Environment Management:** [dotenv](https://www.npmjs.com/package/dotenv)
@@ -21,18 +22,19 @@ TripVault provides authentication architecture for travelers to safely create ac
 - **Framework:** [React 18](https://react.dev/)
 - **Build Tool:** [Vite](https://vitejs.dev/)
 - **Client Routing:** [React Router DOM (v6)](https://reactrouter.com/)
-- **HTTP Client:** [Axios](https://axios-http.com/)
-- **Styling:** Custom Modern Vanilla CSS (Inter typography, responsive cards, glassmorphic accents)
+- **HTTP Client:** [Axios](https://axios-http.com/) (with centralized interceptors in `src/api.js`)
+- **Styling:** Modern Vanilla CSS (Inter typography, responsive cards, glassmorphic accents)
 
 ---
 
 ## ✨ Features
 
-- **Secure User Registration:** Validates input data, prevents duplicate accounts, and safely hashes passwords with bcrypt before saving.
-- **JWT-Based Authentication:** Authenticates credentials and issues signed JSON Web Tokens for session management.
-- **Protected Dashboard Route:** Frontend and backend route guarding—unauthenticated users are redirected to login.
-- **Automatic Token Handling:** Securely stores token in browser `localStorage`, includes it in request headers, and wipes it upon logout or expiration.
-- **Responsive & Modern UI:** Clean, mobile-friendly interface with loading states and user-friendly error banners.
+- **Secure User Registration:** Validates field types and email formats with regex, prevents duplicate accounts (409 Conflict), and safely hashes passwords with bcrypt before saving.
+- **JWT-Based Authentication:** Authenticates credentials, verifies passwords against bcrypt hashes, and issues signed JSON Web Tokens for session management.
+- **Protected Dashboard Route:** Frontend and backend route guarding—unauthenticated users or users with invalid tokens are automatically redirected to login.
+- **Centralized API Client:** Automatic Bearer token attachment on every authenticated request and global 401 interceptor handling.
+- **Production-Grade Security:** HTTP headers protection with `helmet`, IP rate limiting on auth routes, and strict CORS configuration.
+- **Responsive & Modern UI:** Clean, mobile-friendly interface with loading states, active session indicators, and user-friendly error banners.
 
 ---
 
@@ -41,6 +43,7 @@ TripVault provides authentication architecture for travelers to safely create ac
 ```text
 tripvault/
 ├── .gitignore
+├── LICENSE
 ├── README.md
 │
 ├── client/
@@ -49,45 +52,47 @@ tripvault/
 │   ├── package.json
 │   ├── vite.config.js
 │   └── src/
-│       ├── main.jsx
-│       ├── App.jsx
-│       ├── index.css
+│       ├── api.js                       # Centralized Axios client with JWT interceptors
+│       ├── App.jsx                      # App routes & dynamic route guards
+│       ├── index.css                    # Design system & responsive styles
+│       ├── main.jsx                     # React entry point
 │       ├── components/
-│       │   └── ProtectedRoute.jsx
+│       │   └── ProtectedRoute.jsx       # Route protection guard
 │       └── pages/
-│           ├── Dashboard.jsx
-│           ├── Login.jsx
-│           └── Register.jsx
+│           ├── Dashboard.jsx            # Protected user dashboard & logout
+│           ├── Login.jsx                # User login page
+│           └── Register.jsx             # User registration page
 │
 └── server/
-    ├── .env
-    ├── .env.example
+    ├── .env                             # Environment secrets (ignored in git)
+    ├── .env.example                     # Environment template
     ├── .gitignore
-    ├── index.js
+    ├── index.js                         # Express server, Helmet, CORS, Rate Limiting
     ├── package.json
-    ├── test-backend.js
+    ├── test-backend.js                  # Automated test verification suite
     ├── middleware/
-    │   └── authMiddleware.js
+    │   └── authMiddleware.js            # JWT verification middleware
     ├── models/
-    │   └── User.js
+    │   └── User.js                      # User Mongoose model
     └── routes/
-        └── auth.js
+        └── auth.js                      # Register, Login, and Me route handlers
 ```
 
 ---
 
 ## 🔐 Environment Variables
 
-The backend requires the following environment variables. Create a `.env` file in the `server/` directory using the provided `server/.env.example` template:
+Create a `.env` file in the `server/` directory using the provided `server/.env.example` template:
 
 ```env
 # server/.env
 PORT=5000
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/tripvault?retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.ra7czqv.mongodb.net/tripvault?retryWrites=true&w=majority
 JWT_SECRET=your_jwt_secret_key_here
+CLIENT_URL=http://localhost:5173
 ```
 
-> **Security Note:** `.env` files are added to `.gitignore` and are never committed to version control.
+> **Security Note:** `.env` files are included in `.gitignore` and are never committed to version control.
 
 ---
 
@@ -96,7 +101,7 @@ JWT_SECRET=your_jwt_secret_key_here
 ### Prerequisites
 - Node.js (v18 or higher recommended)
 - npm (v9 or higher)
-- A MongoDB Atlas database connection string (or local MongoDB)
+- A MongoDB Atlas database connection string
 
 ### 1. Clone the Repository
 ```bash
@@ -109,7 +114,7 @@ cd tripvault
 cd server
 npm install
 ```
-Create your `.env` configuration file in `server/`:
+Configure your `.env` file in `server/`:
 ```bash
 cp .env.example .env
 ```
@@ -143,17 +148,17 @@ npm run dev
 
 ## 📡 API Endpoints
 
-| Method | Endpoint | Description | Access |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Register a new user | Public |
-| `POST` | `/api/auth/login` | Authenticate user & receive JWT token | Public |
-| `GET` | `/api/auth/me` | Fetch authenticated user profile | Private (Bearer Token) |
-| `GET` | `/` | Health check & server status | Public |
+| Method | Endpoint | Description | Status Code | Access |
+| :--- | :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/register` | Register a new user | `201 Created` / `400` / `409` | Public |
+| `POST` | `/api/auth/login` | Authenticate user & receive JWT token | `200 OK` / `400` | Public |
+| `GET` | `/api/auth/me` | Fetch authenticated user profile | `200 OK` / `401` | Private (Bearer Token) |
+| `GET` | `/` | Health check & server status | `200 OK` | Public |
 
-### Example API Payloads
+### Example Payloads
 
 #### 1. Register: `POST /api/auth/register`
-**Request Body:**
+**Request:**
 ```json
 {
   "name": "Alex Morgan",
@@ -176,7 +181,7 @@ npm run dev
 ```
 
 #### 2. Login: `POST /api/auth/login`
-**Request Body:**
+**Request:**
 ```json
 {
   "email": "alex@example.com",
@@ -221,7 +226,7 @@ npm run dev
 [ User Enters Details ]
          │
          ▼
-[ POST /api/auth/register ] ───► Hashes Password with bcryptjs ───► Saves User to MongoDB
+[ POST /api/auth/register ] ───► Hashes Password with bcryptjs ───► Saves User to MongoDB Atlas
          │
          ▼
 [ POST /api/auth/login ]    ───► Compares Hashes ───► Generates & Returns JWT Token
@@ -230,15 +235,15 @@ npm run dev
 [ Client / Browser ]        ───► Stores JWT Token in localStorage
          │
          ▼
-[ GET /api/auth/me ]        ───► Sends "Authorization: Bearer <token>"
+[ GET /api/auth/me ]        ───► Axios Interceptor adds "Authorization: Bearer <token>"
          │
-         ├──► Token Valid?   ───► Returns User Info ──► Renders Dashboard
-         └──► Token Invalid? ───► 401 Unauthorized   ──► Redirects to /login
+         ├──► Token Valid?   ───► Returns User Profile ──► Renders Dashboard
+         └──► Token Invalid? ───► 401 Unauthorized     ──► Interceptor clears token & redirects to /login
 ```
 
 ---
 
-## 🧪 Running Backend Automated Verification
+## 🧪 Running Automated Tests
 
 The backend includes an automated test verification suite:
 ```bash
@@ -248,12 +253,14 @@ npm test
 
 ---
 
-## 🛡️ Security Best Practices Implemented
+## 🛡️ Security Best Practices
 
-1. **Password Hashing:** Passwords are never stored in plaintext. `bcryptjs` salts and hashes passwords before database insertion.
-2. **JWT Route Guard:** Protected backend routes use `authMiddleware` to verify signatures and expiration.
-3. **Information Hiding:** Password fields are explicitly excluded when querying profiles with `.select('-password')`.
-4. **Environment Isolation:** Secrets (`MONGO_URI`, `JWT_SECRET`) are kept in unversioned `.env` files.
+1. **Password Hashing:** Passwords are cryptographically salted and hashed using `bcryptjs` with salt rounds = 10.
+2. **JWT Authentication:** Stateful user authentication via signed JWTs with expiration.
+3. **Helmet Protection:** Standard security headers enabled to protect against common web vulnerabilities.
+4. **Rate Limiting:** Auth endpoints are throttled using `express-rate-limit` to protect against brute-force attacks.
+5. **CORS Restrictions:** Express only accepts requests from the designated client origin.
+6. **Information Privacy:** Mongoose queries explicitly exclude password fields using `.select('-password')`.
 
 ---
 

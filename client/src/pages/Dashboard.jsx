@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const navigate = useNavigate();
 
@@ -21,11 +20,7 @@ const Dashboard = () => {
 
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5000/api/auth/me', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await api.get('/auth/me');
 
         if (response.data.success && response.data.user) {
           setUser(response.data.user);

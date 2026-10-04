@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +13,14 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const { name, email, password } = formData;
 
@@ -29,7 +37,7 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    // Basic frontend validation
+    // Frontend validation
     if (!name || !email || !password) {
       setError('Please fill in all fields.');
       return;
@@ -42,7 +50,7 @@ const Register = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      const response = await api.post('/auth/register', {
         name,
         email,
         password
@@ -58,7 +66,7 @@ const Register = () => {
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
-        setError('Failed to connect to backend server. Make sure it is running on port 5000.');
+        setError('Unable to connect to server. Please ensure the backend is running.');
       }
     } finally {
       setLoading(false);

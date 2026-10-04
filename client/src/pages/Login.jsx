@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,14 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const { email, password } = formData;
 
@@ -33,7 +41,7 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await api.post('/auth/login', {
         email,
         password
       });

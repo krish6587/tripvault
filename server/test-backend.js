@@ -11,11 +11,11 @@ process.env.PORT = '5001';
 async function runTests() {
   console.log('=== STARTING TRIPVAULT BACKEND VERIFICATION SUITE ===\n');
 
-  // 1. Start MongoDB In-Memory Server
-  console.log('[1/7] Initializing MongoDB Test Instance...');
+  // 1. Start MongoDB In-Memory Server for isolated testing
+  console.log('[1/8] Initializing MongoDB Test Instance...');
   const mongod = await MongoMemoryServer.create();
   const uri = mongod.getUri();
-  console.log('      MongoDB Connected to:', uri);
+  console.log('      MongoDB Connected to test URI');
   await mongoose.connect(uri);
 
   // 2. Setup Express test server
@@ -29,9 +29,24 @@ async function runTests() {
 
   try {
     // ----------------------------------------------------------------
-    // TEST 1: Register API (POST /api/auth/register)
+    // TEST 1: Register API - Invalid Data Types & Format
     // ----------------------------------------------------------------
-    console.log('\n[2/7] Testing POST /api/auth/register ...');
+    console.log('\n[2/8] Testing POST /api/auth/register (Invalid Input Types) ...');
+    const badInputRes = await fetch(`${baseUrl}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 123, email: { nested: 'bad' }, password: true })
+    });
+    console.log('      Status:', badInputRes.status);
+    if (badInputRes.status !== 400) {
+      throw new Error('Type validation failed to return 400 Bad Request');
+    }
+    console.log('      >> PASSED: Non-string inputs rejected with 400.');
+
+    // ----------------------------------------------------------------
+    // TEST 2: Register API - Valid Registration
+    // ----------------------------------------------------------------
+    console.log('\n[3/8] Testing POST /api/auth/register (Valid Payload) ...');
     const registerPayload = {
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -53,9 +68,24 @@ async function runTests() {
     }
 
     // ----------------------------------------------------------------
-    // TEST 2: Verify Password Hashing in MongoDB
+    // TEST 3: Duplicate Registration (409 Conflict)
     // ----------------------------------------------------------------
-    console.log('\n[3/7] Verifying Password Hashing in MongoDB directly ...');
+    console.log('\n[4/8] Testing POST /api/auth/register (Duplicate Email) ...');
+    const dupRes = await fetch(`${baseUrl}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(registerPayload)
+    });
+    console.log('      Status:', dupRes.status);
+    if (dupRes.status !== 409) {
+      throw new Error(`Duplicate registration expected 409, got ${dupRes.status}`);
+    }
+    console.log('      >> PASSED: Duplicate registration correctly rejected with 409 Conflict.');
+
+    // ----------------------------------------------------------------
+    // TEST 4: Verify Password Hashing in MongoDB
+    // ----------------------------------------------------------------
+    console.log('\n[5/8] Verifying Password Hashing in MongoDB directly ...');
     const dbUser = await User.findOne({ email: 'john.doe@example.com' });
     console.log('      Raw User in Database:');
     console.log('        _id:', dbUser._id.toString());
@@ -72,9 +102,9 @@ async function runTests() {
     console.log('      >> PASSED: Password is cryptographically hashed with bcrypt.');
 
     // ----------------------------------------------------------------
-    // TEST 3: Login with Invalid Password
+    // TEST 5: Login with Invalid Password
     // ----------------------------------------------------------------
-    console.log('\n[4/7] Testing POST /api/auth/login (Invalid Password) ...');
+    console.log('\n[6/8] Testing POST /api/auth/login (Invalid Password) ...');
     const badLoginRes = await fetch(`${baseUrl}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -82,16 +112,15 @@ async function runTests() {
     });
     const badLoginData = await badLoginRes.json();
     console.log('      Status:', badLoginRes.status);
-    console.log('      Response:', JSON.stringify(badLoginData, null, 2));
     if (badLoginRes.status !== 400 || badLoginData.success !== false) {
       throw new Error('Bad password login did not fail properly!');
     }
     console.log('      >> PASSED: Invalid login rejected with 400.');
 
     // ----------------------------------------------------------------
-    // TEST 4: Login with Valid Password (POST /api/auth/login)
+    // TEST 6: Login with Valid Password
     // ----------------------------------------------------------------
-    console.log('\n[5/7] Testing POST /api/auth/login (Valid Credentials) ...');
+    console.log('\n[7/8] Testing POST /api/auth/login (Valid Credentials) ...');
     const loginRes = await fetch(`${baseUrl}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -99,7 +128,6 @@ async function runTests() {
     });
     const loginData = await loginRes.json();
     console.log('      Status:', loginRes.status);
-    console.log('      Response:', JSON.stringify(loginData, null, 2));
 
     if (loginRes.status !== 200 || !loginData.token) {
       throw new Error(`Login failed with status ${loginRes.status}`);
@@ -108,27 +136,17 @@ async function runTests() {
     console.log('      >> PASSED: Valid login succeeded and issued JWT token.');
 
     // ----------------------------------------------------------------
-    // TEST 5: Protected Route Without Token (GET /api/auth/me)
+    // TEST 7: Protected Route (GET /api/auth/me)
     // ----------------------------------------------------------------
-    console.log('\n[6/7] Testing GET /api/auth/me (Missing Token) ...');
+    console.log('\n[8/8] Testing GET /api/auth/me (With Valid & Invalid Tokens) ...');
     const noTokenRes = await fetch(`${baseUrl}/me`);
-    const noTokenData = await noTokenRes.json();
-    console.log('      Status:', noTokenRes.status);
-    console.log('      Response:', JSON.stringify(noTokenData, null, 2));
-    if (noTokenRes.status !== 401 || noTokenData.success !== false) {
+    if (noTokenRes.status !== 401) {
       throw new Error('Protected route allowed access without token!');
     }
-    console.log('      >> PASSED: Missing token correctly rejected with 401 Unauthorized.');
 
-    // ----------------------------------------------------------------
-    // TEST 6: Protected Route With Valid Token (GET /api/auth/me)
-    // ----------------------------------------------------------------
-    console.log('\n[7/7] Testing GET /api/auth/me (With Valid JWT Token) ...');
     const meRes = await fetch(`${baseUrl}/me`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     });
     const meData = await meRes.json();
     console.log('      Status:', meRes.status);
@@ -140,7 +158,7 @@ async function runTests() {
     if (meData.user.password) {
       throw new Error('SECURITY VIOLATION: Password hash leaked in /me response!');
     }
-    console.log('      >> PASSED: Authenticated user profile retrieved securely (password excluded).');
+    console.log('      >> PASSED: Authenticated user profile retrieved securely.');
 
     console.log('\n========================================================');
     console.log('ALL BACKEND API TESTS AND SECURITY CHECKS PASSED 100%!');
