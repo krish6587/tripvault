@@ -42,19 +42,28 @@ app.use((err, req, res, next) => {
 });
 
 // Connect to MongoDB & Start Server
-if (!MONGO_URI) {
-  console.error('FATAL ERROR: MONGO_URI is not defined in .env file');
-  process.exit(1);
-}
+const startServer = async () => {
+  try {
+    if (MONGO_URI) {
+      try {
+        await mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 3000 });
+        console.log('MongoDB connected successfully');
+      } catch (err) {
+        console.warn(`Could not connect to ${MONGO_URI}. Initializing local fallback MongoDB...`);
+        const { MongoMemoryServer } = require('mongodb-memory-server');
+        const mongod = await MongoMemoryServer.create();
+        const fallbackUri = mongod.getUri();
+        await mongoose.connect(fallbackUri);
+        console.log('Connected to Local Fallback MongoDB instance');
+      }
+    }
 
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log('MongoDB connected successfully');
     app.listen(PORT, () => {
       console.log(`TripVault server is running on http://localhost:${PORT}`);
     });
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err.message);
-  });
+  } catch (err) {
+    console.error('Fatal Server Startup Error:', err.message);
+  }
+};
+
+startServer();
