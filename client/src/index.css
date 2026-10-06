@@ -316,3 +316,106 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* Password Strength & Requirements */
+.password-strength-container {
+  margin-top: 8px;
+}
+
+.password-strength-bar-bg {
+  height: 6px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.password-strength-bar {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-weak {
+  width: 25%;
+  background-color: #ef4444;
+}
+
+.strength-medium {
+  width: 50%;
+  background-color: #f59e0b;
+}
+
+.strength-good {
+  width: 75%;
+  background-color: #3b82f6;
+}
+
+.strength-strong {
+  width: 100%;
+  background-color: #10b981;
+}
+
+.password-requirements {
+  list-style: none;
+  padding: 0;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.password-req-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.password-req-item.met {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.password-req-item.unmet {
+  color: #94a3b8;
+}
+
+/* Password Input Toggle */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper .form-input {
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  border-radius: 6px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  user-select: none;
+}
+
+.password-toggle-btn:hover {
+  color: var(--text-main);
+  background-color: #f1f5f9;
+}
+
+.password-toggle-btn:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+

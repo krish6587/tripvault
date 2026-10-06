@@ -28,9 +28,9 @@ async function runTests() {
   const baseUrl = 'http://127.0.0.1:5001/api/auth';
 
   try {
-    // ----------------------------------------------------------------
+   
     // TEST 1: Register API - Invalid Data Types & Format
-    // ----------------------------------------------------------------
+   
     console.log('\n[2/8] Testing POST /api/auth/register (Invalid Input Types) ...');
     const badInputRes = await fetch(`${baseUrl}/register`, {
       method: 'POST',
@@ -50,7 +50,7 @@ async function runTests() {
     const registerPayload = {
       name: 'John Doe',
       email: 'john.doe@example.com',
-      password: 'mypassword123'
+      password: 'StrongPass123!'
     };
 
     const regRes = await fetch(`${baseUrl}/register`, {
@@ -93,7 +93,7 @@ async function runTests() {
     console.log('        email:', dbUser.email);
     console.log('        password hash:', dbUser.password);
 
-    if (dbUser.password === 'mypassword123') {
+    if (dbUser.password === 'StrongPass123!') {
       throw new Error('SECURITY VIOLATION: Password is stored in plain text!');
     }
     if (!dbUser.password.startsWith('$2a$') && !dbUser.password.startsWith('$2b$')) {
@@ -124,7 +124,7 @@ async function runTests() {
     const loginRes = await fetch(`${baseUrl}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'john.doe@example.com', password: 'mypassword123' })
+      body: JSON.stringify({ email: 'john.doe@example.com', password: 'StrongPass123!' })
     });
     const loginData = await loginRes.json();
     console.log('      Status:', loginRes.status);
