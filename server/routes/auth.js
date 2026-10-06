@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Standard Email Regex
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Strict Email Regex — validates proper format with TLD of at least 2 characters
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 /**
  * @route   POST /api/auth/register
@@ -48,11 +48,13 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // 4. Validate password length
-    if (password.length < 6) {
+    // 4. Validate strong password
+    // Minimum 8 characters, at least one uppercase, one lowercase, one number, and one special character
+    const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]).{8,}$/;
+    if (!STRONG_PASSWORD_REGEX.test(password)) {
       return res.status(400).json({
         success: false,
-        message: 'Password must be at least 6 characters long.'
+        message: 'Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.'
       });
     }
 
@@ -133,7 +135,15 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // 3. Find user
+    // 3. Validate email format
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address.'
+      });
+    }
+
+    // 4. Find user
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(400).json({
