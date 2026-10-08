@@ -14,6 +14,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
 const authRoutes = require('./routes/auth');
+const tripRoutes = require('./routes/tripRoutes');
 
 // Startup environment validation
 const PORT = process.env.PORT || 5000;
@@ -31,10 +32,16 @@ const app = express();
 // Security Headers
 app.use(helmet());
 
-// CORS Configuration
+// CORS Configuration (Allows localhost, configured CLIENT_URL, and local network devices)
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server) or matching CLIENT_URL/LAN
+      if (!origin || origin === CLIENT_URL || origin.includes('localhost') || origin.includes('127.0.0.1') || origin.startsWith('http://10.') || origin.startsWith('http://192.168.')) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true
   })
 );
@@ -56,6 +63,7 @@ app.use(express.json({ limit: '10kb' }));
 
 // Routes
 app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/trips', tripRoutes);
 
 // Root Health Check Route
 app.get('/', (req, res) => {
