@@ -17,8 +17,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     // Extract token
-    const token = authHeader.split(' ')[1];
-
+    const token = authHeader.split(' ')[1]?.trim();
     if (!token) {
       return res.status(401).json({
         success: false,
@@ -26,10 +25,8 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    // Verify token
+    // Verify token & fetch user without password field
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Fetch user without password field and attach to request
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
       return res.status(401).json({
@@ -40,7 +37,7 @@ const authMiddleware = async (req, res, next) => {
 
     req.user = user;
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({
       success: false,
       message: 'Invalid or expired token.'
@@ -49,3 +46,4 @@ const authMiddleware = async (req, res, next) => {
 };
 
 module.exports = authMiddleware;
+
