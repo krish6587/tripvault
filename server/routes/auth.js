@@ -5,8 +5,10 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Strict Email Regex — validates proper format with TLD of at least 2 characters
+// Email & Password Validation Regexes
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+// Minimum 8 characters, at least one uppercase, one lowercase, one number, and one special character
+const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]).{8,}$/;
 
 /**
  * @route   POST /api/auth/register
@@ -18,11 +20,7 @@ router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
 
     // 1. Validate data types
-    if (
-      typeof name !== 'string' ||
-      typeof email !== 'string' ||
-      typeof password !== 'string'
-    ) {
+    if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
       return res.status(400).json({
         success: false,
         message: 'Name, email, and password must be valid strings.'
@@ -49,8 +47,6 @@ router.post('/register', async (req, res) => {
     }
 
     // 4. Validate strong password
-    // Minimum 8 characters, at least one uppercase, one lowercase, one number, and one special character
-    const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]).{8,}$/;
     if (!STRONG_PASSWORD_REGEX.test(password)) {
       return res.status(400).json({
         success: false,
@@ -67,18 +63,15 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // 6. Hash password using bcryptjs
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // 6. Hash password using bcryptjs (salt factor 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 7. Create new user
-    const newUser = new User({
+    // 7. Create and save new user
+    const newUser = await User.create({
       name: trimmedName,
       email: normalizedEmail,
       password: hashedPassword
     });
-
-    await newUser.save();
 
     // 8. Return response
     return res.status(201).json({
@@ -92,7 +85,6 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
-    // Handle MongoDB duplicate key error code 11000 for concurrent registrations
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
@@ -143,18 +135,9 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // 4. Find user
+    // 4. Find user and verify password
     const user = await User.findOne({ email: normalizedEmail });
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid email or password.'
-      });
-    }
-
-    // 4. Verify password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({
         success: false,
         message: 'Invalid email or password.'
@@ -191,7 +174,6 @@ router.post('/login', async (req, res) => {
  * @access  Private (Protected by JWT authMiddleware)
  */
 router.get('/me', authMiddleware, (req, res) => {
-  // req.user is verified and attached by authMiddleware
   return res.status(200).json({
     success: true,
     user: req.user
@@ -199,3 +181,4 @@ router.get('/me', authMiddleware, (req, res) => {
 });
 
 module.exports = router;
+
