@@ -78,11 +78,7 @@ const Register = () => {
         }, 1500);
       }
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('Unable to connect to server. Please ensure the backend is running.');
-      }
+      setError(err.response?.data?.message || 'Unable to connect to server. Please ensure the backend is running.');
     } finally {
       setLoading(false);
     }

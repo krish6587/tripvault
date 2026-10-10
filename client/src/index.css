@@ -176,6 +176,17 @@ body {
   border: 1px solid #a7f3d0;
 }
 
+.btn-link-retry {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #b91c1c;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+}
+
 /* Links */
 .auth-footer {
   margin-top: 24px;
@@ -195,20 +206,35 @@ body {
   text-decoration: underline;
 }
 
-/* Dashboard Styles */
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #e2e8f0;
+}
+
+/* Dashboard Layout & Navigation */
 .dashboard-layout {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--bg-page);
 }
 
 .navbar {
   background: #ffffff;
   border-bottom: 1px solid var(--border-color);
-  padding: 16px 24px;
+  padding: 16px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 40;
 }
 
 .navbar-brand {
@@ -226,27 +252,356 @@ body {
   gap: 16px;
 }
 
-.dashboard-content {
-  flex: 1;
-  max-width: 800px;
-  width: 100%;
-  margin: 40px auto;
-  padding: 0 20px;
+.navbar-user-greeting {
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
-.welcome-card {
-  background: #ffffff;
+.navbar-user-greeting strong {
+  color: var(--text-main);
+}
+
+.dashboard-main-container {
+  flex: 1;
+  max-width: 1120px;
+  width: 100%;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+.dashboard-header-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dashboard-page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 4px;
+}
+
+.dashboard-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.btn-create-trip {
+  width: auto;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+/* Trips Grid & Cards */
+.trips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 22px;
+}
+
+.trip-card {
+  background: var(--bg-card);
   border-radius: var(--radius);
   border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-md);
-  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  position: relative;
 }
 
-.welcome-card h2 {
-  font-size: 1.5rem;
+.trip-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: #cbd5e1;
+}
+
+.trip-card:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.trip-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.trip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.8rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  border-radius: 20px;
+  max-width: 65%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.star-rating {
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+
+.no-rating {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.trip-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--secondary);
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.trip-card-dates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.calendar-icon {
+  font-size: 0.95rem;
+}
+
+.trip-card-description {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.45;
+  margin-bottom: 18px;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.trip-card-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trip-click-hint {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.trip-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-card-action {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  background: none;
+}
+
+.btn-card-edit {
+  color: var(--primary);
+  background-color: var(--primary-light);
+}
+
+.btn-card-edit:hover {
+  background-color: #dbeafe;
+}
+
+.btn-card-delete {
+  color: var(--danger);
+  background-color: var(--danger-bg);
+}
+
+.btn-card-delete:hover {
+  background-color: #fee2e2;
+}
+
+/* Empty State */
+.empty-trips-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 2px dashed var(--border-color);
+  padding: 56px 24px;
+  text-align: center;
+  max-width: 540px;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-icon {
+  font-size: 3.2rem;
+  margin-bottom: 4px;
+}
+
+.empty-trips-card h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+.empty-trips-card p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  max-width: 420px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.trips-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  gap: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Modal Form Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+.btn-icon-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-icon-close:hover {
+  background-color: #f1f5f9;
+  color: var(--text-main);
+}
+
+.required-star {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-col {
+  flex: 1;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-actions .btn {
+  width: auto;
+  padding: 10px 20px;
+}
+
+@media (max-width: 640px) {
+  .dashboard-header-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-create-trip {
+    width: 100%;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
 }
 
 .profile-grid {
