@@ -6,11 +6,39 @@ const {
   getTrips,
   getTripById,
   updateTrip,
-  deleteTrip
+  deleteTrip,
+  uploadTripPhoto
 } = require('../controllers/tripController');
+const { upload } = require('../middleware/upload');
+
+// Protect alias for authMiddleware
+const protect = authMiddleware;
 
 // All trip routes are protected by authMiddleware
-router.use(authMiddleware);
+router.use(protect);
+
+// Helper middleware to handle multer errors gracefully
+const handleUpload = (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: 'File size too large. Maximum allowed size is 5MB.'
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        message: err.message || 'Error uploading file.'
+      });
+    }
+    next();
+  });
+};
+
+// @route   POST /api/trips/:id/upload
+// @desc    Upload a photo and attach Cloudinary URL to the trip
+router.post('/:id/upload', protect, handleUpload, uploadTripPhoto);
 
 // @route   POST /api/trips
 // @desc    Create a new trip for the logged-in user
@@ -32,3 +60,4 @@ router.route('/:id')
   .delete(deleteTrip);
 
 module.exports = router;
+

@@ -99,6 +99,8 @@ exports.createTrip = async (req, res) => {
       endDate: endDate || null,
       description: description ? description.trim() : '',
       rating: ratingCheck.value,
+      coverImage: req.body.coverImage || '',
+      photos: Array.isArray(req.body.photos) ? req.body.photos : [],
       user: getUserId(req)
     });
 
@@ -211,6 +213,14 @@ exports.updateTrip = async (req, res) => {
       trip.rating = ratingCheck.value;
     }
 
+    if (req.body.coverImage !== undefined) {
+      trip.coverImage = req.body.coverImage;
+    }
+
+    if (Array.isArray(req.body.photos)) {
+      trip.photos = req.body.photos;
+    }
+
     const updatedTrip = await trip.save();
 
     return res.status(200).json({
@@ -220,6 +230,61 @@ exports.updateTrip = async (req, res) => {
     });
   } catch (error) {
     return handleControllerError(res, error, 'Server error while updating trip.');
+  }
+};
+
+/**
+ * @desc    Upload a photo and attach Cloudinary URL to the trip
+ * @route   POST /api/trips/:id/upload
+ * @access  Private
+ */
+exports.uploadTripPhoto = async (req, res) => {
+  try {
+    const trip = await findAndAuthorizeTrip(req.params.id, getUserId(req), 'upload photo to', res);
+    if (!trip) return;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an image file to upload.'
+      });
+    }
+
+    // Determine Cloudinary image URL (or fallback for test environment)
+    let imageUrl = req.file.path || req.file.secure_url;
+    if (!imageUrl && req.file.buffer) {
+      imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    }
+
+    if (!imageUrl) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to process uploaded image.'
+      });
+    }
+
+    // Append URL to trip photos list
+    if (!Array.isArray(trip.photos)) {
+      trip.photos = [];
+    }
+    trip.photos.push(imageUrl);
+
+    // If trip does not yet have a cover image, or if explicitly requested, set as coverImage
+    const setAsCover = req.body.isCover === 'true' || req.body.isCover === true || req.query.isCover === 'true' || !trip.coverImage;
+    if (setAsCover) {
+      trip.coverImage = imageUrl;
+    }
+
+    const updatedTrip = await trip.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Photo uploaded successfully.',
+      imageUrl,
+      trip: updatedTrip
+    });
+  } catch (error) {
+    return handleControllerError(res, error, 'Server error while uploading photo.');
   }
 };
 
@@ -247,4 +312,5 @@ exports.deleteTrip = async (req, res) => {
     });
   }
 };
+
 
