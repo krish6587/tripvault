@@ -17,8 +17,32 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      required: function() {
+        return !this.googleId;
+      },
       minlength: [8, 'Password must be at least 8 characters long']
+    },
+    username: {
+      type: String,
+      required: [true, 'Username is required'],
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [/^[a-zA-Z0-9_-]{3,30}$/, 'Username must be 3-30 characters long and contain only letters, numbers, underscores, or hyphens']
+    },
+    bio: {
+      type: String,
+      default: '',
+      trim: true,
+      maxlength: [300, 'Bio cannot exceed 300 characters']
+    },
+    googleId: {
+      type: String,
+      default: null
+    },
+    avatar: {
+      type: String,
+      default: ''
     }
   },
   {

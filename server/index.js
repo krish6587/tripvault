@@ -15,6 +15,7 @@ const rateLimit = require('express-rate-limit');
 
 const authRoutes = require('./routes/auth');
 const tripRoutes = require('./routes/tripRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Startup environment validation
 const PORT = process.env.PORT || 5000;
@@ -64,6 +65,7 @@ app.use(express.json({ limit: '10kb' }));
 // Routes
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/trips', tripRoutes);
+app.use('/api/users', userRoutes);
 
 // Root Health Check Route
 app.get('/', (req, res) => {
