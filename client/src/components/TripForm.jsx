@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import api from '../api';
 
 /**
- * Reusable TripForm component for both Create and Edit operations.
+ * Reusable TripForm component for both Create and Edit operations,
+ * including photo upload with instant image preview.
  *
  * @param {Object} props
- * @param {Object} [props.initialData] - Optional trip data for edit mode. If provided, form operates in Edit mode.
+ * @param {Object} [props.initialData] - Optional trip data for edit mode.
  * @param {Function} props.onSuccess - Callback after successful create/update to refresh trips.
  * @param {Function} props.onCancel - Callback to close/cancel the form.
  */
@@ -21,6 +22,10 @@ const TripForm = ({ initialData = null, onSuccess, onCancel }) => {
     rating: ''
   });
 
+  // Photo upload state
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(initialData?.coverImage || '');
+  const [uploadStatus, setUploadStatus] = useState(''); // Status message for uploading
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,8 +45,19 @@ const TripForm = ({ initialData = null, onSuccess, onCancel }) => {
       description: initialData?.description || '',
       rating: initialData?.rating !== undefined && initialData?.rating !== null ? String(initialData.rating) : ''
     });
+    setPreviewUrl(initialData?.coverImage || '');
+    setSelectedFile(null);
     setError('');
   }, [initialData]);
+
+  // Clean up object URL on unmount or file change
+  useEffect(() => {
+    return () => {
+      if (selectedFile && previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [selectedFile, previewUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,6 +66,38 @@ const TripForm = ({ initialData = null, onSuccess, onCancel }) => {
       [name]: value
     }));
     if (error) setError('');
+  };
+
+  // Handle image file selection with preview
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (JPEG, PNG, WEBP, etc.).');
+      return;
+    }
+
+    // Validate size (< 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Selected image is too large. Maximum file size is 5MB.');
+      return;
+    }
+
+    setError('');
+    setSelectedFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+  };
+
+  // Remove selected photo
+  const handleRemovePhoto = () => {
+    if (selectedFile && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setSelectedFile(null);
+    setPreviewUrl('');
   };
 
   const handleSubmit = async (e) => {
@@ -85,10 +133,30 @@ const TripForm = ({ initialData = null, onSuccess, onCancel }) => {
 
     try {
       setSubmitting(true);
+      let tripId = initialData?._id;
+
       if (isEditMode) {
-        await api.put(`/trips/${initialData._id}`, payload);
+        setUploadStatus('Updating trip details...');
+        const res = await api.put(`/trips/${tripId}`, payload);
+        if (res.data?.trip?._id) tripId = res.data.trip._id;
       } else {
-        await api.post('/trips', payload);
+        setUploadStatus('Creating trip...');
+        const res = await api.post('/trips', payload);
+        tripId = res.data?.trip?._id;
+      }
+
+      // If a new photo file was chosen, upload via POST /api/trips/:id/upload
+      if (selectedFile && tripId) {
+        setUploadStatus('Uploading cover photo to Cloudinary...');
+        const uploadData = new FormData();
+        uploadData.append('image', selectedFile);
+        uploadData.append('isCover', 'true');
+
+        await api.post(`/trips/${tripId}/upload`, uploadData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
       }
 
       if (onSuccess) {
@@ -99,6 +167,7 @@ const TripForm = ({ initialData = null, onSuccess, onCancel }) => {
       setError(serverMsg);
     } finally {
       setSubmitting(false);
+      setUploadStatus('');
     }
   };
 
@@ -155,6 +224,46 @@ const TripForm = ({ initialData = null, onSuccess, onCancel }) => {
               value={formData.destination}
               onChange={handleChange}
               required
+            />
+          </div>
+
+          {/* Photo Upload Section */}
+          <div className="form-group">
+            <label className="form-label">
+              Trip Cover Photo 📷 <span className="text-muted-hint">(Cloudinary Upload)</span>
+            </label>
+
+            {previewUrl ? (
+              <div className="photo-preview-box">
+                <img src={previewUrl} alt="Trip preview" className="photo-preview-img" />
+                <button
+                  type="button"
+                  className="btn-remove-preview"
+                  onClick={handleRemovePhoto}
+                  title="Remove photo"
+                  aria-label="Remove photo"
+                >
+                  ✕ Remove
+                </button>
+              </div>
+            ) : (
+              <label htmlFor="trip-photo-input" className="photo-upload-dropzone">
+                <div className="dropzone-content">
+                  <span className="dropzone-icon">🌄</span>
+                  <span className="dropzone-text">Click to choose a photo or drag & drop</span>
+                  <span className="dropzone-subtext">JPEG, PNG, WEBP up to 5MB</span>
+                </div>
+              </label>
+            )}
+
+            <input
+              type="file"
+              id="trip-photo-input"
+              name="image"
+              accept="image/*"
+              className="file-input-hidden"
+              onChange={handleFileChange}
+              disabled={submitting}
             />
           </div>
 
@@ -238,7 +347,7 @@ const TripForm = ({ initialData = null, onSuccess, onCancel }) => {
               id="save-trip-btn"
               disabled={submitting}
             >
-              {submitting ? 'Saving...' : isEditMode ? 'Update Trip' : 'Create Trip'}
+              {submitting ? (uploadStatus || 'Saving...') : isEditMode ? 'Update Trip' : 'Create Trip'}
             </button>
           </div>
         </form>
