@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import PublicProfile from './pages/PublicProfile';
+import TripDetails from './pages/TripDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Helper to evaluate token dynamically on root navigation
@@ -22,12 +24,25 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Public User Profile Route (No auth required - Week 3 Part 2) */}
+        <Route path="/profile/:username" element={<PublicProfile />} />
+
         {/* Protected Dashboard Route */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Single Trip Details & Photo Grid Route (Week 3 Part 1) */}
+        <Route
+          path="/trips/:id"
+          element={
+            <ProtectedRoute>
+              <TripDetails />
             </ProtectedRoute>
           }
         />
