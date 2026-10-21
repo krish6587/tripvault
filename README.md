@@ -1,8 +1,8 @@
 # TripVault ✈️
 
-> A full-stack travel memory journal built as part of the **CodGen Full Stack (MERN) Internship — Week 2 (Trip Management & CRUD Operations)**.
+> A full-stack travel memory journal built as part of the **CodGen Full Stack (MERN) Internship — Week 3 (Photo Uploads & Public Profiles)**.
 
-TripVault enables travelers to securely manage their journeys: creating trips with destinations, dates, notes, and optional ratings; viewing their personal travel history; updating trip details; and removing unwanted entries. All operations are secured using JWT authentication, user-specific data isolation, and strict ownership validation.
+TripVault enables travelers to securely manage their journeys: creating trips with destinations, dates, notes, and ratings; uploading photos to Cloudinary; showcasing cover images and photo grids; and sharing public user profile pages where anyone can explore a traveler's adventures without requiring an account.
 
 ---
 
@@ -12,47 +12,113 @@ TripVault enables travelers to securely manage their journeys: creating trips wi
 - **Runtime:** [Node.js](https://nodejs.org/)
 - **Framework:** [Express.js](https://expressjs.com/)
 - **Database:** [MongoDB Atlas](https://www.mongodb.com/atlas) (with [Mongoose ODM](https://mongoosejs.com/))
+- **Cloud Storage:** [Cloudinary](https://cloudinary.com/) (Node.js SDK v2)
+- **File Upload Parsing:** [Multer](https://github.com/expressjs/multer) & [multer-storage-cloudinary](https://www.npmjs.com/package/multer-storage-cloudinary)
 - **Security:** [Helmet](https://helmetjs.github.io/), [express-rate-limit](https://www.npmjs.com/package/express-rate-limit)
 - **Password Hashing:** [bcryptjs](https://www.npmjs.com/package/bcryptjs)
 - **Authentication:** [jsonwebtoken (JWT)](https://www.npmjs.com/package/jsonwebtoken)
 - **Environment Management:** [dotenv](https://www.npmjs.com/package/dotenv)
-- **CORS Support:** [cors](https://www.npmjs.com/package/cors) (supports localhost, custom client URLs, and local network devices)
+- **CORS Support:** [cors](https://www.npmjs.com/package/cors)
 
 ### Frontend
 - **Framework:** [React 18](https://react.dev/)
-- **Build Tool:** [Vite](https://vitejs.dev/) (with `--host` network broadcasting enabled)
+- **Build Tool:** [Vite](https://vitejs.dev/)
 - **Client Routing:** [React Router DOM (v6)](https://reactrouter.com/)
-- **HTTP Client:** [Axios](https://axios-http.com/) (with centralized interceptors & dynamic LAN host detection in `src/api.js`)
-- **Styling:** Clean Vanilla CSS (Responsive cards, modal dialogs, star ratings, empty states, and loading spinners)
+- **HTTP Client:** [Axios](https://axios-http.com/) (with centralized interceptors & dynamic LAN host detection)
+- **Styling:** Premium Vanilla CSS (Photo grid, lightbox modal, public profile banner, responsive trip cards, and form previews)
 
 ---
 
-## ✨ Features
+## ✨ Features by Week
 
-### Week 1 — Authentication & Security Engine
-- **Secure User Registration:** Validates field types and email formats with regex, enforces strong passwords, prevents duplicate accounts (409 Conflict), and safely hashes passwords with bcrypt before saving.
-- **JWT-Based Authentication:** Authenticates credentials, verifies passwords against bcrypt hashes, and issues signed JSON Web Tokens for session management.
-- **Route Guarding:** Frontend protected route wrapper (`ProtectedRoute.jsx`) and backend `authMiddleware.js`.
-- **Centralized API Client:** Automatic Bearer token attachment on every authenticated request and global 401 interceptor handling.
-- **Security Headers & Rate Limiting:** Helmet security headers and rate limiting on sensitive routes.
+### Week 3 — Photo Uploads & Public Profiles (Current)
+- **Cloud Media Storage with Cloudinary:** Seamlessly upload travel memories to Cloudinary using `multer` and `multer-storage-cloudinary` with a 5MB size limit and image format validation (`middleware/upload.js`).
+- **Updated Trip Model:** Added `coverImage` (String) and `photos` (Array of Strings) fields to the Mongoose schema.
+- **Trip Photo Upload Route (`POST /api/trips/:id/upload`):** Uploads an image, attaches the secure Cloudinary URL to the trip's `photos` array, and automatically sets `coverImage` if not yet assigned.
+- **Frontend Photo Upload UI:** File input on Create Trip and Edit Trip forms with instant image previews (`URL.createObjectURL`), clear/remove options, and `FormData` upload.
+- **Trip Card Cover Images:** Dashboard displays cover image banners with photo counter badges (`📸 3 photos`) and rating badges.
+- **Single Trip Detail Page (`/trips/:id`):** Full trip detail page displaying hero cover banner, notes, destination, and a **photo grid gallery** with click-to-view lightbox modal and direct photo uploader.
+- **User Model Enhancements:** Added `username` (unique, required) and `bio` (optional, max 300 characters) to the User schema.
+- **Public Profile Route (`GET /api/users/:username/profile`):** Public API route viewable without authentication. Exposes safe fields only (`name`, `username`, `bio`, `avatar`, and trip list). **Strictly excludes sensitive fields (password, email)**.
+- **Public Profile Page (`/profile/:username`):** Dedicated React page viewable without logging in. Shows avatar/initials, handle, bio, travel stats (trips logged, destinations visited, photos shared), and a public grid of trips.
+- **Edit Profile Route (`PUT /api/users/profile`):** Allows authenticated users to update their bio and username with collision checks.
+- **Dashboard Profile Link & Edit:** "My Profile" button in navbar linking to `/profile/:username`, and interactive "Edit Profile" modal to modify bio and handle directly from the dashboard.
 
 ### Week 2 — Trip Management (CRUD Operations)
-- **Trip Data Model:** Mongoose schema supporting `title`, `destination`, `startDate`, `endDate`, `description`, `rating` (1–5 or unrated), and `user` reference (`ObjectId` ref: `'User'`) with automatic timestamps.
-- **Create Trip (`POST /api/trips`):** Creates a trip linked to the authenticated user's ID with field validation and date chronology validation.
-- **Read All Trips (`GET /api/trips`):** Returns only the trips owned by the logged-in user, sorted newest first (`createdAt: -1`).
-- **Read Single Trip (`GET /api/trips/:id`):** Fetches single trip by MongoDB ID with strict ownership verification (403 Forbidden for unauthorized access, 404 for missing trips, 400 for invalid ID format).
-- **Update Trip (`PUT /api/trips/:id`):** Updates existing trip fields with ownership check before saving.
-- **Delete Trip (`DELETE /api/trips/:id`):** Permanently removes a trip after verifying ownership.
-- **Optional Star Rating:** Supports 1 to 5 star ratings as well as a "No rating (Unrated)" option.
-- **Responsive Dashboard:** Lists trips as responsive cards with star ratings or unrated tags, destination badges, formatted date ranges, loading spinners, and error alerts.
-- **Reusable TripForm Modal:** Single reusable form component for both Create and Edit operations with automatic input pre-filling in edit mode.
-- **Deletion Confirmation:** Interactive prompt (`window.confirm()`) before trip removal with automatic UI refresh.
-- **Empty State UI:** Friendly call-to-action view when the user has no trips logged yet.
-- **Multi-Device & Mobile Access:** Vite is preconfigured with `host: true` and Axios dynamically resolves local network IPs, allowing phones, tablets, and laptops on the same Wi-Fi to test seamlessly.
+- **Trip Model & Validation:** Title, destination, start/end dates, description, rating (1–5 or unrated), and user ownership.
+- **Trip CRUD API:** Full CRUD routes with strict ownership checks (403 Forbidden for unauthorized access).
+- **Dashboard & Modals:** Responsive card layout, reusable Create/Edit modal with pre-filled inputs, deletion confirmation.
+
+### Week 1 — Authentication & Security Engine
+- **Secure Registration & Login:** Validations with regex, strong password enforcement, bcrypt hashing, JWT tokens.
+- **Route Guarding:** Protected route wrappers and `authMiddleware`.
+- **Security:** Rate limiting and Helmet headers.
 
 ---
 
-## 📁 Folder Structure
+## 🔌 API Routes Reference
+
+| Method | Route | Auth Required | Description |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | No | Register new user with username, name, email, password |
+| `POST` | `/api/auth/login` | No | Authenticate user & receive JWT token |
+| `POST` | `/api/auth/google` | No | Verify Google ID token & authenticate |
+| `GET` | `/api/auth/me` | Yes | Get authenticated user info |
+| `POST` | `/api/trips` | Yes | Create a new trip |
+| `GET` | `/api/trips` | Yes | Get all trips for the authenticated user |
+| `GET` | `/api/trips/:id` | Yes | Get single trip by ID (ownership verified) |
+| `PUT` | `/api/trips/:id` | Yes | Update trip details (ownership verified) |
+| `DELETE` | `/api/trips/:id` | Yes | Delete trip (ownership verified) |
+| `POST` | `/api/trips/:id/upload` | **Yes** | **Upload photo to Cloudinary and attach URL to trip** |
+| `GET` | `/api/users/:username/profile` | **No** | **Public profile: user info + trips (safe fields only)** |
+| `PUT` | `/api/users/profile` | **Yes** | **Update logged-in user's bio or username** |
+
+---
+
+## ☁️ Cloudinary Configuration
+
+1. Create a free account at [cloudinary.com](https://cloudinary.com).
+2. Copy your **Cloud Name**, **API Key**, and **API Secret** from the Cloudinary Dashboard.
+3. Add them to `server/.env`:
+   ```env
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
+   ```
+
+---
+
+## 🧪 Automated Test Suite (17 Verification Checks)
+
+TripVault includes an automated verification test suite running against an in-memory MongoDB server. To execute all 17 tests:
+
+```bash
+cd server
+npm test
+```
+
+All 17 checks will run and verify:
+1. Isolated MongoDB In-Memory Server Initialization
+2. User Registration (User 1 & User 2 with usernames)
+3. Unauthenticated Trip Access Prevention (401)
+4. Empty Title/Destination Validation (400)
+5. Invalid Rating Validation (400)
+6. Valid Trip Creation for User 1
+7. User Trips Sorting (Newest First)
+8. User Data Isolation (User 2 sees 0 of User 1's trips)
+9. Single Trip Retrieval by Owner
+10. Cross-User Read Access Forbidden (403)
+11. Cross-User Update Access Forbidden (403)
+12. Cross-User Delete Access Forbidden (403)
+13. Owner Trip Update (200)
+14. Owner Trip Deletion & 404/400 Validation
+15. **Photo Upload to Trip via Multer + Cloudinary (`POST /api/trips/:id/upload`)**
+16. **Public Profile Route (`GET /api/users/:username/profile`) — No Auth, Safe Fields Only, Passwords/Emails Excluded**
+17. **Profile Update (`PUT /api/users/profile`) — Unauthenticated 401 & Authenticated Bio/Username Update**
+
+---
+
+## 📁 Updated Folder Structure
 
 ```text
 tripvault/
@@ -64,39 +130,45 @@ tripvault/
 │   ├── .gitignore
 │   ├── index.html
 │   ├── package.json
-│   ├── vite.config.js                   # Host broadcasting enabled
+│   ├── vite.config.js
 │   └── src/
-│       ├── api.js                       # Centralized Axios client with dynamic LAN host detection
-│       ├── App.jsx                      # App routes & dynamic route guards
-│       ├── index.css                    # Design system & responsive styles
-│       ├── main.jsx                     # React entry point
+│       ├── api.js                       # Axios client with JWT interceptor
+│       ├── App.jsx                      # App routes (/profile/:username, /trips/:id)
+│       ├── index.css                    # Design system, photo grid & profile styles
+│       ├── main.jsx                     # Entry point
 │       ├── components/
-│       │   ├── ProtectedRoute.jsx       # Route protection guard
-│       │   ├── TripCard.jsx             # Card display with ratings and actions
-│       │   └── TripForm.jsx             # Reusable Create/Edit modal with optional rating
+│       │   ├── ProtectedRoute.jsx       # Route guard
+│       │   ├── TripCard.jsx             # Card with cover image & photo badge
+│       │   └── TripForm.jsx             # Create/Edit modal with photo upload & preview
 │       └── pages/
-│           ├── Dashboard.jsx            # Trip management dashboard & user greeting
+│           ├── Dashboard.jsx            # Dashboard with "My Profile" & "Edit Profile"
+│           ├── PublicProfile.jsx        # Public profile page (accessible without login)
+│           ├── TripDetails.jsx          # Trip detail view with photo grid & lightbox
 │           ├── Login.jsx                # User login page
-│           └── Register.jsx             # User registration page with strength indicator
+│           └── Register.jsx             # User registration with username selection
 │
 └── server/
-    ├── .env                             # Environment secrets (ignored in git)
+    ├── .env                             # Environment variables & Cloudinary credentials
     ├── .env.example                     # Environment template
     ├── .gitignore
-    ├── index.js                         # Express server, Helmet, CORS, Rate Limiting
+    ├── index.js                         # Express server with /api/users mounted
     ├── package.json
-    ├── test-backend.js                  # 14-step automated test verification suite
+    ├── test-backend.js                  # 17-step automated test verification suite
     ├── controllers/
-    │   └── tripController.js            # Clean Trip CRUD logic & shared ownership validation
+    │   ├── tripController.js            # Trip CRUD + uploadTripPhoto controller
+    │   └── userController.js            # Public profile & profile update controller
     ├── middleware/
-    │   └── authMiddleware.js            # JWT verification middleware
+    │   ├── authMiddleware.js            # JWT verification middleware
+    │   └── upload.js                    # Multer + Cloudinary upload middleware
     ├── models/
-    │   ├── Trip.js                      # Trip Mongoose schema
-    │   └── User.js                      # User Mongoose model
+    │   ├── Trip.js                      # coverImage and photos array added
+    │   └── User.js                      # username and bio added
     └── routes/
-        ├── auth.js                      # Register, Login, and Me route handlers
-        └── tripRoutes.js                # Protected Trip CRUD routes
+        ├── auth.js                      # Auth routes with username support
+        ├── tripRoutes.js                # Protected CRUD + POST /:id/upload route
+        └── userRoutes.js                # GET /:username/profile & PUT /profile routes
 ```
+
 
 ---
 

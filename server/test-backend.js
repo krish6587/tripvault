@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const tripRoutes = require('./routes/tripRoutes');
+const userRoutes = require('./routes/userRoutes');
 const User = require('./models/User');
 const Trip = require('./models/Trip');
 
@@ -14,7 +15,7 @@ async function runTests() {
   console.log('=== STARTING TRIPVAULT BACKEND VERIFICATION SUITE ===\n');
 
   // 1. Start MongoDB In-Memory Server for isolated testing
-  console.log('[1/14] Initializing MongoDB Test Instance...');
+  console.log('[1/17] Initializing MongoDB Test Instance...');
   const mongod = await MongoMemoryServer.create();
   const uri = mongod.getUri();
   console.log('       MongoDB Connected to test URI');
@@ -26,21 +27,24 @@ async function runTests() {
   app.use(express.json());
   app.use('/api/auth', authRoutes);
   app.use('/api/trips', tripRoutes);
+  app.use('/api/users', userRoutes);
 
   const server = app.listen(5001);
   const authUrl = 'http://127.0.0.1:5001/api/auth';
   const tripUrl = 'http://127.0.0.1:5001/api/trips';
+  const userUrl = 'http://127.0.0.1:5001/api/users';
 
   try {
     // ----------------------------------------------------------------
     // TEST 1: Register User 1 & User 2
     // ----------------------------------------------------------------
-    console.log('\n[2/14] Registering Test Users (User 1 & User 2) ...');
+    console.log('\n[2/17] Registering Test Users (User 1 & User 2) ...');
     await fetch(`${authUrl}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: 'Alice Explorer',
+        username: 'aliceexplorer',
         email: 'alice@example.com',
         password: 'Password123!'
       })
@@ -51,6 +55,7 @@ async function runTests() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: 'Bob Traveler',
+        username: 'bobtraveler',
         email: 'bob@example.com',
         password: 'Password123!'
       })
@@ -64,6 +69,7 @@ async function runTests() {
     });
     const loginData1 = await loginRes1.json();
     const token1 = loginData1.token;
+    const user1Username = loginData1.user.username;
 
     // Login Bob (User 2)
     const loginRes2 = await fetch(`${authUrl}/login`, {
@@ -305,8 +311,107 @@ async function runTests() {
     }
     console.log('       >> PASSED: Trip deleted cleanly and 404/400 checks verified.');
 
+    // ----------------------------------------------------------------
+    // TEST 15: POST /api/trips/:id/upload - Upload Photo to Trip
+    // ----------------------------------------------------------------
+    console.log('\n[15/17] Testing POST /api/trips/:id/upload (Photo Upload) ...');
+    // Create a new trip for User 1 to upload photos to
+    const uploadTripRes = await fetch(tripUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token1}`
+      },
+      body: JSON.stringify({
+        title: 'Kyoto Bamboo Forest',
+        destination: 'Kyoto, Japan',
+        rating: 5
+      })
+    });
+    const uploadTripData = await uploadTripRes.json();
+    const photoTripId = uploadTripData.trip._id;
+
+    // Build multipart/form-data request using native FormData and Blob
+    const formData = new FormData();
+    const fakeImageBytes = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]); // PNG magic header
+    const imageBlob = new Blob([fakeImageBytes], { type: 'image/png' });
+    formData.append('image', imageBlob, 'kyoto.png');
+
+    const uploadRes = await fetch(`${tripUrl}/${photoTripId}/upload`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token1}`
+      },
+      body: formData
+    });
+    const uploadResult = await uploadRes.json();
+
+    if (uploadRes.status !== 200 || !uploadResult.imageUrl || uploadResult.trip.photos.length === 0) {
+      throw new Error(`Photo upload failed: ${JSON.stringify(uploadResult)}`);
+    }
+    if (!uploadResult.trip.coverImage) {
+      throw new Error('Expected coverImage to be populated after upload');
+    }
+    console.log('       >> PASSED: Photo uploaded, coverImage set, photo URL saved in photos array.');
+
+    // ----------------------------------------------------------------
+    // TEST 16: GET /api/users/:username/profile - Public Profile & Security
+    // ----------------------------------------------------------------
+    console.log('\n[16/17] Testing GET /api/users/:username/profile (No Auth, Safe Fields Only) ...');
+    // Get Alice's profile (User 1)
+    const profileRes = await fetch(`${userUrl}/aliceexplorer/profile`);
+    const profileData = await profileRes.json();
+
+    if (profileRes.status !== 200 || !profileData.user) {
+      throw new Error(`Public profile fetch failed: ${JSON.stringify(profileData)}`);
+    }
+    if (profileData.user.username !== 'aliceexplorer' || profileData.user.name !== 'Alice Explorer') {
+      throw new Error(`Public profile user mismatch: ${JSON.stringify(profileData.user)}`);
+    }
+    if (profileData.trips.length === 0) {
+      throw new Error('Public profile should include user trips');
+    }
+    // CRITICAL SECURITY CHECK: Ensure sensitive fields are NEVER exposed
+    if (profileData.user.password !== undefined || profileData.user.email !== undefined) {
+      throw new Error('SECURITY VIOLATION: Password or email exposed in public profile!');
+    }
+    console.log('       >> PASSED: Public profile accessible without token, contains trips, email and password are securely stripped.');
+
+    // ----------------------------------------------------------------
+    // TEST 17: PUT /api/users/profile - Update User Profile (Bio & Username)
+    // ----------------------------------------------------------------
+    console.log('\n[17/17] Testing PUT /api/users/profile (Update Bio & Username) ...');
+    // Test unauthenticated call (should fail with 401)
+    const unauthUpdate = await fetch(`${userUrl}/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bio: 'Hacker bio' })
+    });
+    if (unauthUpdate.status !== 401) {
+      throw new Error(`Expected 401 for unauthenticated profile update, got ${unauthUpdate.status}`);
+    }
+
+    // Authenticated update by Alice
+    const authUpdate = await fetch(`${userUrl}/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token1}`
+      },
+      body: JSON.stringify({
+        bio: 'Solo traveler, landscape photographer & coffee lover.',
+        username: 'alice_explorer'
+      })
+    });
+    const authUpdateData = await authUpdate.json();
+
+    if (authUpdate.status !== 200 || authUpdateData.user.username !== 'alice_explorer' || !authUpdateData.user.bio.includes('landscape photographer')) {
+      throw new Error(`Profile update failed: ${JSON.stringify(authUpdateData)}`);
+    }
+    console.log('       >> PASSED: Profile bio and username updated successfully.');
+
     console.log('\n================================================================');
-    console.log('ALL 14 BACKEND AUTH & TRIP CRUD TESTS PASSED WITH 100% SUCCESS!');
+    console.log('ALL 17 BACKEND AUTH, TRIP CRUD & WEEK 3 TESTS PASSED (100%)!');
     console.log('================================================================\n');
   } finally {
     server.close();
