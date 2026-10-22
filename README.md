@@ -1,187 +1,196 @@
 # TripVault ✈️
 
-> A full-stack travel memory journal built as part of the **CodGen Full Stack (MERN) Internship — Week 3 (Photo Uploads & Public Profiles)**.
+> A modern, full-stack travel memory journal built with the **MERN Stack** (MongoDB, Express, React 18, Node.js) featuring Cloudinary photo storage, public traveler profiles, Google OAuth, and secure JWT authentication.
 
-TripVault enables travelers to securely manage their journeys: creating trips with destinations, dates, notes, and ratings; uploading photos to Cloudinary; showcasing cover images and photo grids; and sharing public user profile pages where anyone can explore a traveler's adventures without requiring an account.
+TripVault enables travelers to record and share their adventures: create trips with rich destinations, dates, notes, and star ratings; upload photos directly to Cloudinary; showcase cover images and interactive photo galleries with lightbox view; and share public user profile pages where anyone can explore a traveler's logged journeys without requiring an account.
 
 ---
 
 ## 🚀 Tech Stack
 
 ### Backend
-- **Runtime:** [Node.js](https://nodejs.org/)
+- **Runtime:** [Node.js](https://nodejs.org/) (v18+)
 - **Framework:** [Express.js](https://expressjs.com/)
-- **Database:** [MongoDB Atlas](https://www.mongodb.com/atlas) (with [Mongoose ODM](https://mongoosejs.com/))
+- **Database:** [MongoDB Atlas](https://www.mongodb.com/atlas) with [Mongoose ODM](https://mongoosejs.com/)
 - **Cloud Storage:** [Cloudinary](https://cloudinary.com/) (Node.js SDK v2)
 - **File Upload Parsing:** [Multer](https://github.com/expressjs/multer) & [multer-storage-cloudinary](https://www.npmjs.com/package/multer-storage-cloudinary)
-- **Security:** [Helmet](https://helmetjs.github.io/), [express-rate-limit](https://www.npmjs.com/package/express-rate-limit)
-- **Password Hashing:** [bcryptjs](https://www.npmjs.com/package/bcryptjs)
-- **Authentication:** [jsonwebtoken (JWT)](https://www.npmjs.com/package/jsonwebtoken)
-- **Environment Management:** [dotenv](https://www.npmjs.com/package/dotenv)
-- **CORS Support:** [cors](https://www.npmjs.com/package/cors)
+- **Authentication:** [jsonwebtoken (JWT)](https://www.npmjs.com/package/jsonwebtoken) & [Google Auth Library](https://www.npmjs.com/package/google-auth-library)
+- **Security:** [Helmet](https://helmetjs.github.io/), [express-rate-limit](https://www.npmjs.com/package/express-rate-limit), [bcryptjs](https://www.npmjs.com/package/bcryptjs)
+- **Testing:** [mongodb-memory-server](https://www.npmjs.com/package/mongodb-memory-server) (isolated 17-check test suite)
+- **Environment & CORS:** [dotenv](https://www.npmjs.com/package/dotenv), [cors](https://www.npmjs.com/package/cors)
 
 ### Frontend
 - **Framework:** [React 18](https://react.dev/)
 - **Build Tool:** [Vite](https://vitejs.dev/)
-- **Client Routing:** [React Router DOM (v6)](https://reactrouter.com/)
+- **Routing:** [React Router DOM (v6)](https://reactrouter.com/)
 - **HTTP Client:** [Axios](https://axios-http.com/) (with centralized interceptors & dynamic LAN host detection)
-- **Styling:** Premium Vanilla CSS (Photo grid, lightbox modal, public profile banner, responsive trip cards, and form previews)
+- **Styling:** Premium Vanilla CSS (Responsive design, photo grid, lightbox modal, public profile hero banner, cover badges, and form previews)
+- **Icons:** Modern UTF-8 vector icons & accessible micro-interactions
 
 ---
 
-## ✨ Features by Week
+## ✨ Feature Highlights
 
-### Week 3 — Photo Uploads & Public Profiles (Current)
-- **Cloud Media Storage with Cloudinary:** Seamlessly upload travel memories to Cloudinary using `multer` and `multer-storage-cloudinary` with a 5MB size limit and image format validation (`middleware/upload.js`).
-- **Updated Trip Model:** Added `coverImage` (String) and `photos` (Array of Strings) fields to the Mongoose schema.
-- **Trip Photo Upload Route (`POST /api/trips/:id/upload`):** Uploads an image, attaches the secure Cloudinary URL to the trip's `photos` array, and automatically sets `coverImage` if not yet assigned.
-- **Frontend Photo Upload UI:** File input on Create Trip and Edit Trip forms with instant image previews (`URL.createObjectURL`), clear/remove options, and `FormData` upload.
-- **Trip Card Cover Images:** Dashboard displays cover image banners with photo counter badges (`📸 3 photos`) and rating badges.
-- **Single Trip Detail Page (`/trips/:id`):** Full trip detail page displaying hero cover banner, notes, destination, and a **photo grid gallery** with click-to-view lightbox modal and direct photo uploader.
-- **User Model Enhancements:** Added `username` (unique, required) and `bio` (optional, max 300 characters) to the User schema.
-- **Public Profile Route (`GET /api/users/:username/profile`):** Public API route viewable without authentication. Exposes safe fields only (`name`, `username`, `bio`, `avatar`, and trip list). **Strictly excludes sensitive fields (password, email)**.
-- **Public Profile Page (`/profile/:username`):** Dedicated React page viewable without logging in. Shows avatar/initials, handle, bio, travel stats (trips logged, destinations visited, photos shared), and a public grid of trips.
-- **Edit Profile Route (`PUT /api/users/profile`):** Allows authenticated users to update their bio and username with collision checks.
-- **Dashboard Profile Link & Edit:** "My Profile" button in navbar linking to `/profile/:username`, and interactive "Edit Profile" modal to modify bio and handle directly from the dashboard.
+### 📸 Cloudinary Photo Uploads & Galleries
+- **Direct Cloud Uploads:** Upload high-resolution trip photos directly to Cloudinary via Multer with 5MB file-size limits and image mime-type validation.
+- **Instant Client Previews:** Instant client-side photo previews (`URL.createObjectURL`) on Create and Edit Trip forms before submission.
+- **Cover Image & Badges:** Automatically assigns the first uploaded image as the trip's cover banner, with photo count badges (`📸 3 photos`) and star ratings.
+- **Lightbox Photo Gallery:** Dedicated Trip Detail page (`/trips/:id`) featuring an interactive responsive photo grid with a full-screen lightbox modal and direct photo uploader.
 
-### Week 2 — Trip Management (CRUD Operations)
-- **Trip Model & Validation:** Title, destination, start/end dates, description, rating (1–5 or unrated), and user ownership.
-- **Trip CRUD API:** Full CRUD routes with strict ownership checks (403 Forbidden for unauthorized access).
-- **Dashboard & Modals:** Responsive card layout, reusable Create/Edit modal with pre-filled inputs, deletion confirmation.
+### 🌐 Public Traveler Profiles
+- **Public Profile Page (`/profile/:username`):** Anyone can view a traveler's public profile and adventures without logging in or having an account.
+- **Strict Privacy Safeguards:** Public profile endpoints strictly expose safe public fields (`name`, `username`, `bio`, `avatar`, and trip list), completely stripping sensitive data (`password`, `email`).
+- **Profile Management:** Logged-in users can update their bio (up to 300 characters), name, and unique username handle directly from their dashboard modal with automatic uniqueness checks.
+- **Travel Stats:** Automatically calculates destinations visited, total trips logged, and photos shared.
 
-### Week 1 — Authentication & Security Engine
-- **Secure Registration & Login:** Validations with regex, strong password enforcement, bcrypt hashing, JWT tokens.
-- **Route Guarding:** Protected route wrappers and `authMiddleware`.
-- **Security:** Rate limiting and Helmet headers.
+### 🔐 Authentication & Security
+- **JWT & Password Security:** Strong password enforcement regex, bcrypt hashing (10 salt rounds), and HTTP Bearer token verification.
+- **Google OAuth 2.0:** One-tap sign in / sign up with Google authentication.
+- **Data Isolation & Route Guards:** Strict database-level query isolation (`user: req.user.id`) and 403 Forbidden enforcement preventing unauthorized cross-user modifications.
+- **Security Headers & Rate Limiting:** Helmet security headers and IP rate limiting on API endpoints.
 
 ---
 
 ## 🔌 API Routes Reference
 
+### Authentication Endpoints
 | Method | Route | Auth Required | Description |
 |---|---|---|---|
 | `POST` | `/api/auth/register` | No | Register new user with username, name, email, password |
 | `POST` | `/api/auth/login` | No | Authenticate user & receive JWT token |
-| `POST` | `/api/auth/google` | No | Verify Google ID token & authenticate |
-| `GET` | `/api/auth/me` | Yes | Get authenticated user info |
-| `POST` | `/api/trips` | Yes | Create a new trip |
-| `GET` | `/api/trips` | Yes | Get all trips for the authenticated user |
-| `GET` | `/api/trips/:id` | Yes | Get single trip by ID (ownership verified) |
-| `PUT` | `/api/trips/:id` | Yes | Update trip details (ownership verified) |
-| `DELETE` | `/api/trips/:id` | Yes | Delete trip (ownership verified) |
-| `POST` | `/api/trips/:id/upload` | **Yes** | **Upload photo to Cloudinary and attach URL to trip** |
-| `GET` | `/api/users/:username/profile` | **No** | **Public profile: user info + trips (safe fields only)** |
-| `PUT` | `/api/users/profile` | **Yes** | **Update logged-in user's bio or username** |
+| `POST` | `/api/auth/google` | No | Sign in / register using Google OAuth ID token |
+| `GET` | `/api/auth/me` | **Yes** | Fetch current authenticated user's profile |
+| `GET` | `/` | No | Server health check |
 
----
+### Trip Management Endpoints
+| Method | Route | Auth Required | Description |
+|---|---|---|---|
+| `POST` | `/api/trips` | **Yes** | Create a new trip for logged-in user |
+| `GET` | `/api/trips` | **Yes** | Fetch all trips belonging to logged-in user (newest first) |
+| `GET` | `/api/trips/:id` | **Yes** | Fetch single trip by ID (ownership verified) |
+| `PUT` | `/api/trips/:id` | **Yes** | Update trip details (ownership verified) |
+| `DELETE` | `/api/trips/:id` | **Yes** | Delete trip (ownership verified) |
+| `POST` | `/api/trips/:id/upload` | **Yes** | Upload photo to Cloudinary and attach URL to trip |
 
-## ☁️ Cloudinary Configuration
-
-1. Create a free account at [cloudinary.com](https://cloudinary.com).
-2. Copy your **Cloud Name**, **API Key**, and **API Secret** from the Cloudinary Dashboard.
-3. Add them to `server/.env`:
-   ```env
-   CLOUDINARY_CLOUD_NAME=your_cloud_name
-   CLOUDINARY_API_KEY=your_api_key
-   CLOUDINARY_API_SECRET=your_api_secret
-   ```
+### User & Public Profile Endpoints
+| Method | Route | Auth Required | Description |
+|---|---|---|---|
+| `GET` | `/api/users/:username/profile` | No | Public profile: user info + trips (safe fields only) |
+| `PUT` | `/api/users/profile` | **Yes** | Update logged-in user's username, bio, or name |
 
 ---
 
 ## 🧪 Automated Test Suite (17 Verification Checks)
 
-TripVault includes an automated verification test suite running against an in-memory MongoDB server. To execute all 17 tests:
+TripVault includes an automated test verification suite running on an isolated in-memory MongoDB server. To execute all 17 tests:
 
 ```bash
+# Run from root:
+npm test
+
+# Or run from server directory:
 cd server
 npm test
 ```
 
-All 17 checks will run and verify:
+All 17 checks verify:
 1. Isolated MongoDB In-Memory Server Initialization
-2. User Registration (User 1 & User 2 with usernames)
-3. Unauthenticated Trip Access Prevention (401)
-4. Empty Title/Destination Validation (400)
-5. Invalid Rating Validation (400)
+2. User Registration (User 1 & User 2 with unique handles)
+3. Unauthenticated Trip Access Prevention (`401 Unauthorized`)
+4. Empty Title/Destination Validation (`400 Bad Request`)
+5. Invalid Rating Validation (`400 Bad Request`)
 6. Valid Trip Creation for User 1
 7. User Trips Sorting (Newest First)
 8. User Data Isolation (User 2 sees 0 of User 1's trips)
 9. Single Trip Retrieval by Owner
-10. Cross-User Read Access Forbidden (403)
-11. Cross-User Update Access Forbidden (403)
-12. Cross-User Delete Access Forbidden (403)
-13. Owner Trip Update (200)
+10. Cross-User Read Access Forbidden (`403 Forbidden`)
+11. Cross-User Update Access Forbidden (`403 Forbidden`)
+12. Cross-User Delete Access Forbidden (`403 Forbidden`)
+13. Owner Trip Update (`200 OK`)
 14. Owner Trip Deletion & 404/400 Validation
 15. **Photo Upload to Trip via Multer + Cloudinary (`POST /api/trips/:id/upload`)**
-16. **Public Profile Route (`GET /api/users/:username/profile`) — No Auth, Safe Fields Only, Passwords/Emails Excluded**
+16. **Public Profile Route (`GET /api/users/:username/profile`) — No Auth, Safe Fields Only, Passwords & Emails Excluded**
 17. **Profile Update (`PUT /api/users/profile`) — Unauthenticated 401 & Authenticated Bio/Username Update**
 
 ---
 
-## 📁 Updated Folder Structure
+## 📁 Project Folder Structure
 
 ```text
 tripvault/
-├── .gitignore
-├── LICENSE
-├── README.md
+├── package.json                         # Root package with concurrently dev script
+├── .gitignore                           # Git ignore rules
+├── LICENSE                              # ISC License
+├── README.md                            # Comprehensive project documentation
 │
-├── client/
-│   ├── .gitignore
-│   ├── index.html
-│   ├── package.json
-│   ├── vite.config.js
+├── client/                              # Frontend React + Vite application
+│   ├── .env.example                     # Client environment template
+│   ├── index.html                       # HTML template with Google Fonts & Meta tags
+│   ├── package.json                     # Client dependencies & scripts
+│   ├── vite.config.js                   # Vite configuration (server port 5173)
 │   └── src/
-│       ├── api.js                       # Axios client with JWT interceptor
-│       ├── App.jsx                      # App routes (/profile/:username, /trips/:id)
-│       ├── index.css                    # Design system, photo grid & profile styles
-│       ├── main.jsx                     # Entry point
+│       ├── api.js                       # Axios client with JWT interceptor & LAN detection
+│       ├── App.jsx                      # Client router (/login, /register, /dashboard, /trips/:id, /profile/:username)
+│       ├── index.css                    # Design system, responsive grid, profile banner & lightbox modal
+│       ├── main.jsx                     # React DOM entry point
 │       ├── components/
-│       │   ├── ProtectedRoute.jsx       # Route guard
-│       │   ├── TripCard.jsx             # Card with cover image & photo badge
+│       │   ├── ProtectedRoute.jsx       # Route guard for authenticated pages
+│       │   ├── TripCard.jsx             # Card with cover image, photo count badge & rating
 │       │   └── TripForm.jsx             # Create/Edit modal with photo upload & preview
 │       └── pages/
-│           ├── Dashboard.jsx            # Dashboard with "My Profile" & "Edit Profile"
-│           ├── PublicProfile.jsx        # Public profile page (accessible without login)
-│           ├── TripDetails.jsx          # Trip detail view with photo grid & lightbox
-│           ├── Login.jsx                # User login page
-│           └── Register.jsx             # User registration with username selection
+│           ├── Dashboard.jsx            # Main dashboard with trip grid, "My Profile" & "Edit Profile"
+│           ├── PublicProfile.jsx        # Public traveler profile (accessible without login)
+│           ├── TripDetails.jsx          # Trip detail view with photo gallery grid & lightbox modal
+│           ├── Login.jsx                # User login page with standard & Google login
+│           └── Register.jsx             # User registration with username handle selection
 │
-└── server/
-    ├── .env                             # Environment variables & Cloudinary credentials
-    ├── .env.example                     # Environment template
-    ├── .gitignore
-    ├── index.js                         # Express server with /api/users mounted
-    ├── package.json
-    ├── test-backend.js                  # 17-step automated test verification suite
+└── server/                              # Backend Node.js + Express API
+    ├── .env.example                     # Backend environment template
+    ├── index.js                         # Express server entry point & route registration
+    ├── package.json                     # Server dependencies & test script
+    ├── test-backend.js                  # 17-step automated in-memory verification suite
     ├── controllers/
     │   ├── tripController.js            # Trip CRUD + uploadTripPhoto controller
-    │   └── userController.js            # Public profile & profile update controller
+    │   └── userController.js            # Public profile & user profile update controller
     ├── middleware/
-    │   ├── authMiddleware.js            # JWT verification middleware
-    │   └── upload.js                    # Multer + Cloudinary upload middleware
+    │   ├── authMiddleware.js            # JWT verification & req.user attachment
+    │   └── upload.js                    # Multer + Cloudinary storage upload middleware
     ├── models/
-    │   ├── Trip.js                      # coverImage and photos array added
-    │   └── User.js                      # username and bio added
+    │   ├── Trip.js                      # Trip schema (coverImage, photos array, ratings, dates)
+    │   └── User.js                      # User schema (username, bio, avatar, bcrypt hashing)
     └── routes/
-        ├── auth.js                      # Auth routes with username support
+        ├── auth.js                      # Register, login, me, and Google OAuth routes
         ├── tripRoutes.js                # Protected CRUD + POST /:id/upload route
         └── userRoutes.js                # GET /:username/profile & PUT /profile routes
 ```
-
 
 ---
 
 ## 🔐 Environment Variables
 
-Create a `.env` file in the `server/` directory using the provided `server/.env.example` template:
+### 1. Backend (`server/.env`)
+Create a `.env` file in the `server/` directory from `server/.env.example`:
 
 ```env
-# server/.env
 PORT=5000
-MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/tripvault?retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/tripvault?retryWrites=true&w=majority
 JWT_SECRET=your_jwt_secret_key_here
 CLIENT_URL=http://localhost:5173
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+
+# Cloudinary Credentials
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+### 2. Frontend (`client/.env`)
+Create a `.env` file in the `client/` directory from `client/.env.example`:
+
+```env
+# Optional: defaults to http://localhost:5000/api in development
+VITE_API_URL=http://localhost:5000/api
+VITE_GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
 ```
 
 > **Security Note:** `.env` files are included in `.gitignore` and are never committed to version control.
@@ -191,9 +200,10 @@ CLIENT_URL=http://localhost:5173
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
-- Node.js (v18 or higher recommended)
-- npm (v9 or higher)
-- A MongoDB Atlas database connection string
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- [npm](https://www.npmjs.com/) (v9 or higher)
+- A [MongoDB Atlas](https://www.mongodb.com/atlas) database connection URI
+- A free [Cloudinary](https://cloudinary.com/) account (Cloud Name, API Key, API Secret)
 
 ### 1. Clone the Repository
 ```bash
@@ -201,35 +211,49 @@ git clone <your-repository-url>
 cd tripvault
 ```
 
-### 2. Backend Setup
+### 2. Install Dependencies
+You can install dependencies for root, server, and client:
+
 ```bash
+# Install root concurrently tool
+npm install
+
+# Install server dependencies
 cd server
 npm install
-```
-Configure your `.env` file in `server/`:
-```bash
 cp .env.example .env
-```
-*(Open `.env` and fill in your `MONGO_URI` and `JWT_SECRET`).*
+# Edit server/.env with your MongoDB & Cloudinary credentials
 
-### 3. Frontend Setup
-```bash
+# Install client dependencies
 cd ../client
 npm install
+cp .env.example .env
+# Edit client/.env (if needed)
+cd ..
 ```
 
 ---
 
 ## 🏃 Running the Application
 
-### Start Backend Server
+### Option A: Run Both Concurrently (Recommended)
+From the root `tripvault/` directory:
+
+```bash
+npm run dev
+```
+> This starts both the Express API server (on port `5000`) and the Vite client (on port `5173`) simultaneously using `concurrently`.
+
+### Option B: Run Individually in Separate Terminals
+
+#### Terminal 1 — Backend:
 ```bash
 cd server
 npm run dev
 ```
 > The API server will start on **`http://localhost:5000`**.
 
-### Start Frontend Client
+#### Terminal 2 — Frontend:
 ```bash
 cd client
 npm run dev
@@ -238,43 +262,71 @@ npm run dev
 
 ---
 
-## 📱 Accessing from Mobile or Any Device (Same Wi-Fi)
+## 📱 Mobile & LAN Access (Same Wi-Fi)
 
-1. Make sure your computer and mobile phone/tablet are connected to the same Wi-Fi network.
-2. Find your computer's local IP address (e.g., `10.174.101.242` or `192.168.1.x`).
-3. Open the browser on your phone and visit:
+TripVault has built-in dynamic local network discovery:
+1. Connect your computer and mobile device/tablet to the same Wi-Fi network.
+2. Find your computer's local network IP address (`192.168.x.x` or `10.x.x.x` via `ipconfig` or `ifconfig`).
+3. Open your mobile browser and navigate to:
    ```text
    http://<YOUR_LOCAL_IP>:5173/
-   # Example: http://10.174.101.242:5173/
    ```
-4. The client automatically routes API requests to `http://<YOUR_LOCAL_IP>:5000/api`, and backend CORS permits LAN requests seamlessly.
-
----
-
-## 📡 API Endpoints Reference
-
-### Authentication Endpoints
-| Method | Endpoint | Description | Status Code | Auth Required |
-| :--- | :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Register a new user | `201 Created` / `400` / `409` | No (Public) |
-| `POST` | `/api/auth/login` | Authenticate user & receive JWT token | `200 OK` / `400` | No (Public) |
-| `GET` | `/api/auth/me` | Fetch authenticated user profile | `200 OK` / `401` | **Yes (`Bearer <token>`)** |
-| `GET` | `/` | Health check & server status | `200 OK` | No (Public) |
-
-### Trip Management Endpoints (Week 2)
-| Method | Endpoint | Description | Status Code | Auth Required |
-| :--- | :--- | :--- | :--- | :--- |
-| `POST` | `/api/trips` | Create a new trip for authenticated user | `201 Created` / `400` | **Yes (`Bearer <token>`)** |
-| `GET` | `/api/trips` | Get all trips for logged-in user (newest first) | `200 OK` | **Yes (`Bearer <token>`)** |
-| `GET` | `/api/trips/:id` | Get single trip by ID (must belong to user) | `200 OK` / `400` / `403` / `404` | **Yes (`Bearer <token>`)** |
-| `PUT` | `/api/trips/:id` | Update trip fields (owner only) | `200 OK` / `400` / `403` / `404` | **Yes (`Bearer <token>`)** |
-| `DELETE` | `/api/trips/:id` | Delete a trip (owner only) | `200 OK` / `400` / `403` / `404` | **Yes (`Bearer <token>`)** |
+4. The client automatically detects the network hostname and directs API calls to `http://<YOUR_LOCAL_IP>:5000/api`, with backend CORS configured to allow seamless cross-device communication.
 
 ---
 
 ## 📬 Example API Requests & Payloads
 
-### 1. Create Trip: `POST /api/trips`
+### 1. User Registration: `POST /api/auth/register`
+**Body (`JSON`):**
+```json
+{
+  "name": "Jane Traveler",
+  "username": "janetravels",
+  "email": "jane@example.com",
+  "password": "Password123!"
+}
+```
+**Response (`201 Created`):**
+```json
+{
+  "success": true,
+  "message": "User registered successfully.",
+  "token": "eyJhbGciOiJIUzI1NiIsIn...",
+  "user": {
+    "id": "6ac7575ff4d99a0920b58980",
+    "name": "Jane Traveler",
+    "username": "janetravels",
+    "email": "jane@example.com",
+    "avatar": ""
+  }
+}
+```
+
+### 2. User Login: `POST /api/auth/login`
+**Body (`JSON`):**
+```json
+{
+  "email": "jane@example.com",
+  "password": "Password123!"
+}
+```
+**Response (`200 OK`):**
+```json
+{
+  "success": true,
+  "message": "Login successful.",
+  "token": "eyJhbGciOiJIUzI1NiIsIn...",
+  "user": {
+    "id": "6ac7575ff4d99a0920b58980",
+    "name": "Jane Traveler",
+    "username": "janetravels",
+    "email": "jane@example.com"
+  }
+}
+```
+
+### 3. Create Trip: `POST /api/trips`
 **Header:** `Authorization: Bearer <your_jwt_token>`  
 **Body (`JSON`):**
 ```json
@@ -283,12 +335,10 @@ npm run dev
   "destination": "Kyoto, Japan",
   "startDate": "2026-06-10",
   "endDate": "2026-06-20",
-  "description": "Explored Fushimi Inari Shrine, bamboo grove in Arashiyama, and enjoyed authentic matcha tea.",
+  "description": "Explored Fushimi Inari Shrine and bamboo grove in Arashiyama.",
   "rating": 5
 }
 ```
-*(Note: `rating` is optional. Pass `null` or omit it to save an unrated trip).*
-
 **Response (`201 Created`):**
 ```json
 {
@@ -300,22 +350,53 @@ npm run dev
     "destination": "Kyoto, Japan",
     "startDate": "2026-06-10T00:00:00.000Z",
     "endDate": "2026-06-20T00:00:00.000Z",
-    "description": "Explored Fushimi Inari Shrine, bamboo grove in Arashiyama, and enjoyed authentic matcha tea.",
+    "description": "Explored Fushimi Inari Shrine and bamboo grove in Arashiyama.",
     "rating": 5,
-    "user": "69ddda08e9ca85d0db2d64f0",
-    "createdAt": "2026-10-08T08:30:00.000Z",
-    "updatedAt": "2026-10-08T08:30:00.000Z"
+    "coverImage": "",
+    "photos": [],
+    "user": "6ac7575ff4d99a0920b58980",
+    "createdAt": "2026-10-22T08:30:00.000Z"
   }
 }
 ```
 
-### 2. Get All Trips: `GET /api/trips`
+### 4. Upload Trip Photo: `POST /api/trips/:id/upload`
 **Header:** `Authorization: Bearer <your_jwt_token>`  
+**Content-Type:** `multipart/form-data`  
+**Form Field:** `image`: `[Binary Image File]` (e.g. JPG, PNG, WebP)  
+**Optional Form Field:** `isCover`: `true`
+
 **Response (`200 OK`):**
 ```json
 {
   "success": true,
-  "count": 1,
+  "message": "Photo uploaded successfully.",
+  "imageUrl": "https://res.cloudinary.com/demo/image/upload/v1234567890/tripvault/trip_photo.jpg",
+  "trip": {
+    "_id": "6ac7575ff4d99a0920b58991",
+    "title": "Summer Vacation in Kyoto",
+    "coverImage": "https://res.cloudinary.com/demo/image/upload/v1234567890/tripvault/trip_photo.jpg",
+    "photos": [
+      "https://res.cloudinary.com/demo/image/upload/v1234567890/tripvault/trip_photo.jpg"
+    ]
+  }
+}
+```
+
+### 5. Fetch Public Profile: `GET /api/users/:username/profile`
+**Auth Required:** None (Public)  
+**Response (`200 OK`):**
+```json
+{
+  "success": true,
+  "user": {
+    "id": "6ac7575ff4d99a0920b58980",
+    "name": "Jane Traveler",
+    "username": "janetravels",
+    "bio": "Passionate backpacker exploring hidden gems across Asia & Europe 🌏🎒",
+    "avatar": "",
+    "createdAt": "2026-10-15T10:00:00.000Z"
+  },
   "trips": [
     {
       "_id": "6ac7575ff4d99a0920b58991",
@@ -325,77 +406,38 @@ npm run dev
       "endDate": "2026-06-20T00:00:00.000Z",
       "description": "Explored Fushimi Inari Shrine...",
       "rating": 5,
-      "user": "69ddda08e9ca85d0db2d64f0",
-      "createdAt": "2026-10-08T08:30:00.000Z"
+      "coverImage": "https://res.cloudinary.com/demo/image/upload/...",
+      "photos": ["https://res.cloudinary.com/demo/image/upload/..."],
+      "createdAt": "2026-10-22T08:30:00.000Z"
     }
   ]
 }
 ```
 
-### 3. Get Single Trip: `GET /api/trips/:id`
-**Header:** `Authorization: Bearer <your_jwt_token>`  
-**Response (`200 OK`):**
-```json
-{
-  "success": true,
-  "trip": {
-    "_id": "6ac7575ff4d99a0920b58991",
-    "title": "Summer Vacation in Kyoto",
-    "destination": "Kyoto, Japan",
-    "startDate": "2026-06-10T00:00:00.000Z",
-    "endDate": "2026-06-20T00:00:00.000Z",
-    "description": "Explored Fushimi Inari Shrine...",
-    "rating": 5,
-    "user": "69ddda08e9ca85d0db2d64f0"
-  }
-}
-```
-
-### 4. Update Trip: `PUT /api/trips/:id`
+### 6. Update Profile: `PUT /api/users/profile`
 **Header:** `Authorization: Bearer <your_jwt_token>`  
 **Body (`JSON`):**
 ```json
 {
-  "title": "Summer in Kyoto & Osaka",
-  "destination": "Kyoto & Osaka, Japan",
-  "rating": 5,
-  "description": "Added Osaka food tour in Dotonbori."
+  "username": "janetravels_official",
+  "bio": "Backpacker, coffee enthusiast & travel photographer 📷☕",
+  "name": "Jane Traveler"
 }
 ```
 **Response (`200 OK`):**
 ```json
 {
   "success": true,
-  "message": "Trip updated successfully.",
-  "trip": {
-    "_id": "6ac7575ff4d99a0920b58991",
-    "title": "Summer in Kyoto & Osaka",
-    "destination": "Kyoto & Osaka, Japan",
-    "rating": 5,
-    "description": "Added Osaka food tour in Dotonbori."
+  "message": "Profile updated successfully.",
+  "user": {
+    "id": "6ac7575ff4d99a0920b58980",
+    "name": "Jane Traveler",
+    "username": "janetravels_official",
+    "bio": "Backpacker, coffee enthusiast & travel photographer 📷☕",
+    "email": "jane@example.com",
+    "avatar": ""
   }
 }
-```
-
-### 5. Delete Trip: `DELETE /api/trips/:id`
-**Header:** `Authorization: Bearer <your_jwt_token>`  
-**Response (`200 OK`):**
-```json
-{
-  "success": true,
-  "message": "Trip deleted successfully."
-}
-```
-
----
-
-## 🧪 Running Automated Backend Tests
-
-The repository includes a comprehensive 14-step automated verification suite testing Auth, protected routes, CRUD lifecycle, data isolation, and ownership security:
-
-```bash
-cd server
-npm test
 ```
 
 ---
@@ -403,11 +445,12 @@ npm test
 ## 🛡️ Security & Architecture
 
 1. **Strict User Data Isolation:** Queries on `GET /api/trips` filter strictly by `{ user: req.user.id }`.
-2. **Ownership Validation:** `GET /:id`, `PUT /:id`, and `DELETE /:id` verify `trip.user.toString() === req.user.id` returning `403 Forbidden` on unauthorized access attempts.
-3. **Mongoose Schema Safeguards:** Required constraints on title, destination, user ID, and `min: 1`, `max: 5` validation on ratings when provided.
-4. **JWT Bearer Token Guard:** Every trip endpoint is protected by `authMiddleware` rejecting requests without valid Bearer tokens (`401 Unauthorized`).
-5. **Axios Centralized Interceptor:** Frontend client automatically attaches Bearer tokens, dynamically resolves LAN host IPs, and handles automatic session expiration.
-6. **Optimized DRY Architecture:** Shared validation and authorization helpers avoid code duplication and keep business logic modular and maintainable.
+2. **Ownership Validation:** `GET /:id`, `PUT /:id`, `DELETE /:id`, and `POST /:id/upload` verify `trip.user.toString() === req.user.id`, returning `403 Forbidden` on unauthorized access attempts.
+3. **Public Route Sanitization:** Public profile routes explicitly whitelist safe fields (`name`, `username`, `bio`, `avatar`, and public trips), ensuring sensitive data (`email`, `password`) is never exposed.
+4. **Mongoose Schema Safeguards:** Constraints on required fields, regex enforcement on usernames (`^[a-zA-Z0-9_-]{3,30}$`), and `min: 1`, `max: 5` validation on ratings when provided.
+5. **JWT Bearer Token Guard:** Protected endpoints verify token signature and validity through `authMiddleware`.
+6. **Axios Centralized Interceptor:** Frontend client automatically attaches Bearer tokens, dynamically resolves LAN host IPs, and handles automatic session expiration.
+7. **Cloudinary Media Pipeline:** Secure direct stream uploading via `multer-storage-cloudinary` with automatic format validation and file-size guardrails (5MB limit).
 
 ---
 
