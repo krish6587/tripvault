@@ -3,7 +3,11 @@ import axios from 'axios';
 // Determine API base URL dynamically (supports localhost, local network IP, or deployed URL)
 const getApiBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    let url = import.meta.env.VITE_API_URL.trim();
+    if (!url.endsWith('/api')) {
+      url = url.replace(/\/+$/, '') + '/api';
+    }
+    return url;
   }
   const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
   return `http://${host}:5000/api`;
