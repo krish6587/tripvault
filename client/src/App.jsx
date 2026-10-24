@@ -6,6 +6,9 @@ import Dashboard from './pages/Dashboard';
 import PublicProfile from './pages/PublicProfile';
 import TripDetails from './pages/TripDetails';
 import ProtectedRoute from './components/ProtectedRoute';
+import Landing from './pages/Landing';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Helper to evaluate token dynamically on root navigation
 const RootRoute = () => {
@@ -16,9 +19,21 @@ const RootRoute = () => {
 function App() {
   return (
     <Router>
+      <ToastContainer
+        position="top-right"
+        autoClose={3500}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <Routes>
         {/* Root Route: Redirects to dashboard if logged in, otherwise to login */}
-        <Route path="/" element={<RootRoute />} />
+        <Route path="/" element={<Landing />} />
 
         {/* Public Authentication Routes */}
         <Route path="/login" element={<Login />} />
