@@ -215,14 +215,36 @@ const Register = () => {
       {/* Right Form Half */}
       <div className="auth-split-form-panel">
         <div className="auth-form-card">
-          {/* Top Pill Switcher */}
-          <div className="auth-nav-pills">
-            <Link to="/login" className="auth-nav-pill">
-              Log In
+          {/* Top Header with Back to Home & Pill Switcher */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+            <Link
+              to="/"
+              style={{
+                color: '#8d949b',
+                textDecoration: 'none',
+                fontSize: '11.5px',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#efe9df')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#8d949b')}
+            >
+              <span>←</span>
+              <span>Home</span>
             </Link>
-            <Link to="/register" className="auth-nav-pill active">
-              Sign Up
-            </Link>
+
+            <div className="auth-nav-pills" style={{ marginBottom: 0 }}>
+              <Link to="/login" className="auth-nav-pill">
+                Log In
+              </Link>
+              <Link to="/register" className="auth-nav-pill active">
+                Sign Up
+              </Link>
+            </div>
           </div>
 
           <h2 className="auth-form-title">Start your vault.</h2>
