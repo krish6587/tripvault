@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import api from '../api';
 
 /**
@@ -159,12 +160,19 @@ const TripForm = ({ initialData = null, onSuccess, onCancel }) => {
         });
       }
 
+      if (isEditMode) {
+        toast.success('Trip updated successfully!');
+      } else {
+        toast.success('Trip created successfully! 🎉');
+      }
+
       if (onSuccess) {
         onSuccess();
       }
     } catch (err) {
       const serverMsg = err.response?.data?.message || 'Failed to save trip. Please try again.';
       setError(serverMsg);
+      toast.error(serverMsg);
     } finally {
       setSubmitting(false);
       setUploadStatus('');
