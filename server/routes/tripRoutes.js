@@ -17,14 +17,17 @@ const protect = authMiddleware;
 // All trip routes are protected by authMiddleware
 router.use(protect);
 
-// Helper middleware to handle multer errors gracefully
+// Helper middleware to handle multer errors gracefully (supports multiple and single images)
 const handleUpload = (req, res, next) => {
-  upload.single('image')(req, res, (err) => {
+  upload.fields([
+    { name: 'images', maxCount: 20 },
+    { name: 'image', maxCount: 1 }
+  ])(req, res, (err) => {
     if (err) {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({
           success: false,
-          message: 'File size too large. Maximum allowed size is 5MB.'
+          message: 'File size too large. Maximum allowed size is 5MB per photo.'
         });
       }
       return res.status(400).json({

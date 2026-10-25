@@ -243,48 +243,65 @@ exports.uploadTripPhoto = async (req, res) => {
     const trip = await findAndAuthorizeTrip(req.params.id, getUserId(req), 'upload photo to', res);
     if (!trip) return;
 
-    if (!req.file) {
+    // Collect all uploaded files (from req.files.images, req.files.image, or req.file)
+    const files = [];
+    if (req.files) {
+      if (Array.isArray(req.files.images)) files.push(...req.files.images);
+      if (Array.isArray(req.files.image)) files.push(...req.files.image);
+    }
+    if (req.file) {
+      files.push(req.file);
+    }
+
+    if (files.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide an image file to upload.'
+        message: 'Please provide at least one image file to upload.'
       });
     }
 
-    // Determine Cloudinary image URL (or fallback for test environment)
-    let imageUrl = req.file.path || req.file.secure_url;
-    if (!imageUrl && req.file.buffer) {
-      imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    // Determine Cloudinary image URLs
+    const uploadedUrls = [];
+    for (const f of files) {
+      let imageUrl = f.path || f.secure_url;
+      if (!imageUrl && f.buffer) {
+        imageUrl = `data:${f.mimetype};base64,${f.buffer.toString('base64')}`;
+      }
+      if (imageUrl) {
+        uploadedUrls.push(imageUrl);
+      }
     }
 
-    if (!imageUrl) {
+    if (uploadedUrls.length === 0) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to process uploaded image.'
+        message: 'Failed to process uploaded image(s).'
       });
     }
 
-    // Append URL to trip photos list
+    // Append URLs to trip photos list
     if (!Array.isArray(trip.photos)) {
       trip.photos = [];
     }
-    trip.photos.push(imageUrl);
+    trip.photos.push(...uploadedUrls);
 
     // If trip does not yet have a cover image, or if explicitly requested, set as coverImage
     const setAsCover = req.body.isCover === 'true' || req.body.isCover === true || req.query.isCover === 'true' || !trip.coverImage;
-    if (setAsCover) {
-      trip.coverImage = imageUrl;
+    if (setAsCover && uploadedUrls.length > 0) {
+      trip.coverImage = uploadedUrls[0];
     }
 
     const updatedTrip = await trip.save();
 
     return res.status(200).json({
       success: true,
-      message: 'Photo uploaded successfully.',
-      imageUrl,
+      message: `${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully.`,
+      imageUrl: uploadedUrls[0],
+      photoUrls: uploadedUrls,
       trip: updatedTrip
     });
   } catch (error) {
-    return handleControllerError(res, error, 'Server error while uploading photo.');
+    return handleControllerError(res, error, 'Server error while uploading photo(s).');
   }
 };
 

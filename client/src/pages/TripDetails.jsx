@@ -13,6 +13,7 @@ const TripDetails = () => {
   const [error, setError] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState(null); // Lightbox modal
   const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState('');
 
   // Fetch single trip details
@@ -39,20 +40,24 @@ const TripDetails = () => {
     fetchTrip();
   }, [fetchTrip]);
 
-  // Upload an additional photo to this trip (Deliverable #3)
+  // Upload additional photo(s) to this trip
   const handlePhotoUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    if (!file.type.startsWith('image/')) {
-      const msg = 'Please select a valid image file (JPEG, PNG, WEBP, etc.).';
+    // Validate file types
+    const invalidFile = files.find((f) => !f.type.startsWith('image/'));
+    if (invalidFile) {
+      const msg = `"${invalidFile.name}" is not a valid image file.`;
       setError(msg);
       toast.error(msg);
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      const msg = 'File size exceeds 5MB limit.';
+    // Validate size limit (5MB per file)
+    const tooLargeFile = files.find((f) => f.size > 5 * 1024 * 1024);
+    if (tooLargeFile) {
+      const msg = `"${tooLargeFile.name}" exceeds the 5MB size limit.`;
       setError(msg);
       toast.error(msg);
       return;
@@ -62,26 +67,32 @@ const TripDetails = () => {
       setUploading(true);
       setError('');
       setUploadSuccess('');
+      setUploadStatus(files.length > 1 ? `Uploading ${files.length} photos...` : 'Uploading photo...');
 
       const formData = new FormData();
-      formData.append('image', file);
+      files.forEach((file) => {
+        formData.append('images', file);
+      });
 
       const res = await api.post(`/trips/${id}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       if (res.data?.success) {
-        toast.success('Photo uploaded to Cloudinary successfully! 📸');
-        setUploadSuccess('Photo uploaded successfully!');
+        const count = res.data.photoUrls?.length || files.length;
+        const msg = `${count} photo${count > 1 ? 's' : ''} uploaded to Cloudinary successfully! 📸`;
+        toast.success(msg);
+        setUploadSuccess(msg);
         setTrip(res.data.trip);
-        setTimeout(() => setUploadSuccess(''), 3000);
+        setTimeout(() => setUploadSuccess(''), 4000);
       }
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to upload photo.';
+      const msg = err.response?.data?.message || 'Failed to upload photo(s).';
       setError(msg);
       toast.error(msg);
     } finally {
       setUploading(false);
+      setUploadStatus('');
       e.target.value = ''; // reset file input
     }
   };
@@ -210,11 +221,12 @@ const TripDetails = () => {
             </div>
 
             {/* Quick Upload Button */}
-            <label style={{ background: '#efe9df', color: '#07090b', borderRadius: '9999px', padding: '10px 24px', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              <span>{uploading ? '⏳ Uploading...' : '+ Upload Photo'}</span>
+            <label style={{ background: '#efe9df', color: '#07090b', borderRadius: '9999px', padding: '10px 24px', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, cursor: uploading ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <span>{uploading ? `⏳ ${uploadStatus || 'Uploading...'}` : '+ Upload Photos'}</span>
               <input
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handlePhotoUpload}
                 disabled={uploading}
                 style={{ display: 'none' }}
@@ -229,13 +241,14 @@ const TripDetails = () => {
                 No photos yet
               </h3>
               <p style={{ color: '#8d949b', fontSize: '13.5px', marginBottom: '20px' }}>
-                Capture and upload your favorite scenic views, food, and moments!
+                Capture and upload your favorite scenic views, food, and moments! Select multiple photos at once.
               </p>
-              <label style={{ background: '#efe9df', color: '#07090b', borderRadius: '9999px', padding: '10px 24px', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', display: 'inline-block' }}>
-                <span>{uploading ? 'Uploading...' : 'Upload First Photo'}</span>
+              <label style={{ background: '#efe9df', color: '#07090b', borderRadius: '9999px', padding: '10px 24px', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, cursor: uploading ? 'wait' : 'pointer', display: 'inline-block' }}>
+                <span>{uploading ? `⏳ ${uploadStatus || 'Uploading...'}` : 'Upload Photos'}</span>
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={handlePhotoUpload}
                   disabled={uploading}
                   style={{ display: 'none' }}
