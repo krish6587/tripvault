@@ -27,6 +27,11 @@ const POS = [
 const bg = (src) => ({ backgroundImage: `url(${src})` });
 const pad = (n) => String(n).padStart(2, '0');
 
+const scrollTo = (id) => {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 export default function Landing() {
   const heroBg = useRef(null);
   const loggedIn = !!localStorage.getItem('token');
@@ -48,7 +53,9 @@ export default function Landing() {
         <nav>
           <div className="logo">TripVault</div>
           <ul className="tiny">
-            <li>Journal</li><li>Experiences</li><li>About</li><li>Contact</li>
+            <li onClick={() => scrollTo('journal')}>Journal</li>
+            <li onClick={() => scrollTo('destinations')}>Experiences</li>
+            <li onClick={() => scrollTo('about')}>About</li>
           </ul>
           <div className="tiny ex">
             {loggedIn ? (
@@ -76,6 +83,37 @@ export default function Landing() {
         </div>
       </header>
 
+      {/* ── JOURNAL ── */}
+      <section className="lp-journal" id="journal">
+        <div className="lp-journal-inner">
+          <p className="tiny lp-label">Your Travel Journal</p>
+          <h2>Every trip deserves<br />to be remembered.</h2>
+          <p className="lp-journal-body">
+            TripVault is your personal travel journal — a private vault where every adventure,
+            every detour, and every breathtaking view lives forever. Write about your journeys,
+            attach photos, log destinations, and relive your stories anytime.
+          </p>
+          <Link className="btn tiny" to={loggedIn ? '/dashboard' : '/register'}>
+            Start journaling
+          </Link>
+        </div>
+        <div className="lp-journal-stats">
+          <div className="lp-stat">
+            <span className="lp-stat-num">42+</span>
+            <span className="tiny">Real journeys</span>
+          </div>
+          <div className="lp-stat">
+            <span className="lp-stat-num">17</span>
+            <span className="tiny">Destinations</span>
+          </div>
+          <div className="lp-stat">
+            <span className="lp-stat-num">∞</span>
+            <span className="tiny">Memories</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── EXPERIENCES / DESTINATIONS ── */}
       <section className="wander" id="destinations">
         <h2>Destinations<br />Worth Wandering.</h2>
         <div className="pols">
@@ -98,6 +136,30 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── ABOUT ── */}
+      <section className="lp-about" id="about">
+        <p className="tiny lp-label">About TripVault</p>
+        <h2>Built for those who<br />wander with purpose.</h2>
+        <div className="lp-about-grid">
+          <div className="lp-about-card">
+            <span className="lp-about-icon">✦</span>
+            <h3>Private by Default</h3>
+            <p>Your vault, your stories. Everything stays private unless you choose to share.</p>
+          </div>
+          <div className="lp-about-card">
+            <span className="lp-about-icon">◈</span>
+            <h3>Rich Journaling</h3>
+            <p>Write detailed entries, attach photos, log dates and locations for every trip.</p>
+          </div>
+          <div className="lp-about-card">
+            <span className="lp-about-icon">⬡</span>
+            <h3>Share Your Story</h3>
+            <p>Make your profile public and inspire other travelers with your experiences.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── END CTA ── */}
       <section className="end">
         <div className="bg" style={{ ...bg(hero), filter: 'blur(14px) brightness(.4)' }} />
         <div>
@@ -105,6 +167,7 @@ export default function Landing() {
           <Link className="btn tiny" to={loggedIn ? '/dashboard' : '/register'}>Open your vault</Link>
         </div>
       </section>
+
 
       <footer className="tiny">
         <span>© 2026 TripVault • Crafted by Krish Kumar</span>

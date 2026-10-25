@@ -4,12 +4,16 @@
 .lp::-webkit-scrollbar{display:none;width:0;height:0}
 .lp .serif,.lp h1,.lp h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic}
 .lp .tiny{font-size:10px;letter-spacing:.22em;text-transform:uppercase}
+.lp nav ul{list-style:none;margin:0;padding:0;display:flex;gap:28px;align-items:center}
+.lp nav ul li{font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;position:relative;padding-bottom:3px}
+.lp nav ul li::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--ink);transition:width .3s ease}
+.lp nav ul li:hover::after{width:100%}
 .lp .hero{position:relative;height:100vh;min-height:640px;overflow:hidden}
 .lp .bg{position:absolute;inset:-4%;background-size:cover;background-position:center;filter:brightness(.55);transform:scale(1.05);transition:transform .2s}
 .lp .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(7,9,11,.35),rgba(7,9,11,.15) 40%,var(--bg))}
-.lp nav{position:absolute;z-index:5;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:26px 4vw;align-items:flex-start}
-.lp nav .logo{font-family:'Cormorant Garamond',serif;font-size:22px}
-.lp nav ul{list-style:none;margin:0;padding:0;line-height:1.7}
+.lp nav{position:absolute;z-index:5;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:26px 4vw;align-items:center}
+.lp nav .logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;letter-spacing:.04em}
+
 .lp nav .ex{border-bottom:1px solid var(--ink);padding-bottom:3px}
 .lp .stage{position:absolute;z-index:3;inset:0}
 .lp .frame{position:absolute;left:50%;top:50%;width:min(34vw,420px);height:min(24vw,300px);transform:translate(-50%,-48%);background-size:cover;background-position:center;border:1px solid rgba(255,255,255,.25);box-shadow:0 20px 60px rgba(0,0,0,.5);animation:lpFloat 9s ease-in-out infinite}
@@ -55,6 +59,38 @@
 @media(prefers-reduced-motion:reduce){.lp *{animation:none!important}
 }
 
+
 .lp a{text-decoration:none;color:inherit}
 .lp nav .ex{display:flex;gap:18px;border:0}
-.lp nav .ex a{border-bottom:1px solid var(--ink);padding-bottom:3px}
+.lp nav .ex a{border-bottom:1px solid var(--ink);padding-bottom:3px;font-size:12px;font-weight:700;letter-spacing:.18em}
+
+/* ── LABEL ── */
+.lp .lp-label{color:var(--mute);margin:0 0 16px}
+
+/* ── JOURNAL SECTION ── */
+.lp .lp-journal{padding:12vh 8vw;display:flex;justify-content:space-between;align-items:center;gap:60px;border-top:1px solid rgba(255,255,255,.08)}
+.lp .lp-journal-inner{max-width:540px}
+.lp .lp-journal-inner h2{font-size:clamp(36px,5vw,72px);line-height:.95;margin:0 0 28px}
+.lp .lp-journal-body{color:var(--mute);line-height:1.8;margin:0 0 36px;font-size:15px;max-width:440px}
+.lp .lp-journal-stats{display:flex;flex-direction:column;gap:36px;align-items:flex-end;flex-shrink:0}
+.lp .lp-stat{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.lp .lp-stat-num{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,6vw,80px);font-weight:300;font-style:italic;line-height:1;color:var(--ink)}
+.lp .lp-stat .tiny{color:var(--mute)}
+
+/* ── ABOUT SECTION ── */
+.lp .lp-about{padding:12vh 8vw;border-top:1px solid rgba(255,255,255,.08);text-align:center}
+.lp .lp-about h2{font-size:clamp(36px,5vw,72px);line-height:.95;margin:0 0 60px}
+.lp .lp-about-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;text-align:left}
+.lp .lp-about-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:32px;border-radius:4px;transition:.3s}
+.lp .lp-about-card:hover{background:rgba(255,255,255,.07);transform:translateY(-4px)}
+.lp .lp-about-icon{font-size:22px;display:block;margin-bottom:18px;color:var(--mute)}
+.lp .lp-about-card h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;font-style:italic;margin:0 0 12px;color:var(--ink)}
+.lp .lp-about-card p{color:var(--mute);font-size:13px;line-height:1.75;margin:0}
+
+
+/* ── RESPONSIVE ── */
+@media(max-width:820px){
+  .lp .lp-journal{flex-direction:column;align-items:flex-start}
+  .lp .lp-journal-stats{flex-direction:row;align-items:flex-start}
+  .lp .lp-about-grid{grid-template-columns:1fr}
+}
