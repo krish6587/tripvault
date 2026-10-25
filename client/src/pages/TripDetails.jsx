@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../api';
+import Footer from '../components/Footer';
 
 const TripDetails = () => {
   const { id } = useParams();
@@ -25,7 +27,9 @@ const TripDetails = () => {
         setError('Trip not found.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load trip details.');
+      const msg = err.response?.data?.message || 'Failed to load trip details.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -35,18 +39,22 @@ const TripDetails = () => {
     fetchTrip();
   }, [fetchTrip]);
 
-  // Upload an additional photo to this trip
+  // Upload an additional photo to this trip (Deliverable #3)
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setError('Please select an image file (JPEG, PNG, WEBP, etc.).');
+      const msg = 'Please select a valid image file (JPEG, PNG, WEBP, etc.).';
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError('File size exceeds 5MB limit.');
+      const msg = 'File size exceeds 5MB limit.';
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
@@ -63,12 +71,15 @@ const TripDetails = () => {
       });
 
       if (res.data?.success) {
+        toast.success('Photo uploaded to Cloudinary successfully! 📸');
         setUploadSuccess('Photo uploaded successfully!');
         setTrip(res.data.trip);
         setTimeout(() => setUploadSuccess(''), 3000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to upload photo.');
+      const msg = err.response?.data?.message || 'Failed to upload photo.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setUploading(false);
       e.target.value = ''; // reset file input
@@ -87,32 +98,32 @@ const TripDetails = () => {
   };
 
   const renderStars = (rating) => {
-    if (!rating) return <span className="no-rating">Unrated</span>;
+    if (!rating) return '★★★★★';
     const count = Math.min(Math.max(Math.round(rating), 1), 5);
-    return (
-      <span className="star-rating" title={`Rated ${rating} out of 5 stars`}>
-        {'⭐'.repeat(count)}
-      </span>
-    );
+    return '★'.repeat(count);
   };
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p style={{ color: '#64748b', fontWeight: 500 }}>Loading trip details...</p>
+      <div style={{ minHeight: '100vh', background: '#07090b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: '#8d949b', fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontStyle: 'italic' }}>
+          Loading your travel memories...
+        </p>
       </div>
     );
   }
 
   if (error && !trip) {
     return (
-      <div className="trip-details-container">
-        <div className="alert alert-error">
+      <div style={{ minHeight: '100vh', background: '#07090b', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', color: '#efe9df' }}>
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '16px 24px', borderRadius: '10px', color: '#fca5a5', maxWidth: '420px', textAlign: 'center' }}>
           <span>⚠️</span> {error}
         </div>
-        <button onClick={() => navigate(-1)} className="btn btn-secondary" style={{ marginTop: 16 }}>
-          ← Go Back
+        <button
+          onClick={() => navigate('/dashboard')}
+          style={{ marginTop: 20, background: '#efe9df', color: '#07090b', border: 'none', borderRadius: '9999px', padding: '10px 24px', cursor: 'pointer', fontWeight: 600, fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase' }}
+        >
+          ← Return to Dashboard
         </button>
       </div>
     );
@@ -121,65 +132,77 @@ const TripDetails = () => {
   const photos = Array.isArray(trip.photos) ? trip.photos : [];
 
   return (
-    <div className="trip-details-layout">
-      {/* Top Navigation */}
-      <header className="navbar">
-        <div className="navbar-brand" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
-          <span>✈️</span> TripVault
-        </div>
-        <div className="navbar-user">
-          <button onClick={() => navigate(-1)} className="btn btn-secondary btn-sm">
+    <div style={{ minHeight: '100vh', background: '#07090b', color: '#efe9df', fontFamily: "'DM Sans', system-ui, sans-serif", display: 'flex', flexDirection: 'column' }}>
+      {/* Top Navbar */}
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 48px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <Link to="/" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '24px', color: '#efe9df', textDecoration: 'none' }}>
+          TripVault
+        </Link>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button
+            onClick={() => navigate(-1)}
+            style={{ border: '1px solid rgba(255, 255, 255, 0.18)', background: 'rgba(255, 255, 255, 0.04)', color: '#efe9df', borderRadius: '9999px', padding: '7px 18px', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer' }}
+          >
             ← Back
           </button>
-          <Link to="/dashboard" className="btn btn-primary btn-sm">
+          <Link
+            to="/dashboard"
+            style={{ background: '#efe9df', color: '#07090b', borderRadius: '9999px', padding: '7px 20px', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}
+          >
             Dashboard
           </Link>
         </div>
       </header>
 
-      <main className="trip-details-main">
-        {/* Alerts */}
-        {error && (
-          <div className="alert alert-error" style={{ marginBottom: 20 }}>
-            <span>⚠️</span> {error}
-          </div>
-        )}
-        {uploadSuccess && (
-          <div className="alert alert-success" style={{ marginBottom: 20 }}>
-            <span>✅</span> {uploadSuccess}
-          </div>
-        )}
-
-        {/* Hero Header Card */}
-        <div className="trip-hero-card">
+      <main style={{ maxWidth: '1100px', margin: '0 auto', padding: '36px 24px 60px', width: '100%', flex: 1, boxSizing: 'border-box' }}>
+        {/* Hero Card */}
+        <div style={{ background: '#0e1217', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 20px 45px rgba(0,0,0,0.6)', marginBottom: '40px' }}>
           {trip.coverImage ? (
-            <div className="trip-hero-image-wrap">
-              <img src={trip.coverImage} alt={trip.title} className="trip-hero-image" />
-              <div className="trip-hero-overlay"></div>
+            <div style={{ position: 'relative', width: '100%', height: '380px', overflow: 'hidden' }}>
+              <img src={trip.coverImage} alt={trip.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(7,9,11,0.2) 0%, rgba(7,9,11,0.85) 100%)' }} />
             </div>
           ) : (
-            <div className="trip-hero-placeholder">
+            <div style={{ width: '100%', height: '180px', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: '3rem' }}>🗺️</span>
             </div>
           )}
 
-          <div className="trip-hero-info">
-            <div className="trip-hero-badges">
-              <span className="trip-badge">📍 {trip.destination}</span>
-              <span className="trip-rating-badge">{renderStars(trip.rating)}</span>
+          <div style={{ padding: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+              <span style={{ fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#ea580c', fontWeight: 700 }}>
+                • {trip.destination}
+              </span>
+              <span style={{ color: '#f59e0b', letterSpacing: '2px', fontSize: '13px' }}>
+                {renderStars(trip.rating)}
+              </span>
             </div>
-            <h1 className="trip-hero-title">{trip.title}</h1>
-            <p className="trip-hero-dates">📅 {formatDateRange(trip.startDate, trip.endDate)}</p>
-            {trip.description && <p className="trip-hero-description">{trip.description}</p>}
+
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 400, color: '#efe9df', margin: '0 0 10px 0', lineHeight: 1.15 }}>
+              {trip.title}
+            </h1>
+
+            <p style={{ fontSize: '13px', color: '#8d949b', display: 'flex', alignItems: 'center', gap: '6px', margin: '0 0 20px 0' }}>
+              <span>📅</span>
+              <span>{formatDateRange(trip.startDate, trip.endDate)}</span>
+            </p>
+
+            {trip.description && (
+              <p style={{ fontSize: '14.5px', color: '#cbd5e1', lineHeight: 1.6, background: 'rgba(255, 255, 255, 0.03)', padding: '18px 22px', borderRadius: '10px', borderLeft: '3px solid #ea580c', margin: 0 }}>
+                {trip.description}
+              </p>
+            )}
           </div>
         </div>
 
         {/* Photo Gallery Grid Section */}
-        <section className="photo-grid-section">
-          <div className="photo-grid-header">
+        <section>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
             <div>
-              <h2 className="section-title">Trip Photos & Memories 📸</h2>
-              <p className="section-subtitle">
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: '32px', color: '#efe9df', margin: '0 0 6px 0', fontWeight: 300 }}>
+                Trip Photos & Memories 📸
+              </h2>
+              <p style={{ fontSize: '13px', color: '#8d949b', margin: 0 }}>
                 {photos.length === 0
                   ? 'No photos uploaded yet. Upload memories from your trip below!'
                   : `${photos.length} photo${photos.length > 1 ? 's' : ''} stored securely in Cloudinary`}
@@ -187,8 +210,8 @@ const TripDetails = () => {
             </div>
 
             {/* Quick Upload Button */}
-            <label className="btn btn-primary btn-upload-photo">
-              <span>{uploading ? '⏳ Uploading...' : '➕ Upload Photo'}</span>
+            <label style={{ background: '#efe9df', color: '#07090b', borderRadius: '9999px', padding: '10px 24px', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <span>{uploading ? '⏳ Uploading...' : '+ Upload Photo'}</span>
               <input
                 type="file"
                 accept="image/*"
@@ -200,11 +223,15 @@ const TripDetails = () => {
           </div>
 
           {photos.length === 0 ? (
-            <div className="empty-photos-box">
-              <span style={{ fontSize: '2.5rem' }}>📷</span>
-              <h3>No photos yet</h3>
-              <p>Capture and upload your favorite scenic views, food, and moments!</p>
-              <label className="btn btn-primary" style={{ marginTop: 12 }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px dashed rgba(255, 255, 255, 0.12)', borderRadius: '14px', padding: '56px 24px', textAlign: 'center' }}>
+              <span style={{ fontSize: '3rem' }}>📷</span>
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', color: '#efe9df', margin: '12px 0 6px' }}>
+                No photos yet
+              </h3>
+              <p style={{ color: '#8d949b', fontSize: '13.5px', marginBottom: '20px' }}>
+                Capture and upload your favorite scenic views, food, and moments!
+              </p>
+              <label style={{ background: '#efe9df', color: '#07090b', borderRadius: '9999px', padding: '10px 24px', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, cursor: 'pointer', display: 'inline-block' }}>
                 <span>{uploading ? 'Uploading...' : 'Upload First Photo'}</span>
                 <input
                   type="file"
@@ -216,20 +243,23 @@ const TripDetails = () => {
               </label>
             </div>
           ) : (
-            <div className="photo-grid">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
               {photos.map((url, idx) => (
                 <div
                   key={idx}
-                  className="photo-grid-item"
+                  style={{ position: 'relative', aspectRatio: '4/3', borderRadius: '10px', overflow: 'hidden', cursor: 'pointer', background: '#11141a', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)', transition: 'transform 0.25s' }}
                   onClick={() => setSelectedPhoto(url)}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => (e.key === 'Enter' ? setSelectedPhoto(url) : null)}
                   aria-label={`View photo ${idx + 1} full size`}
                 >
-                  <img src={url} alt={`${trip.title} memory ${idx + 1}`} loading="lazy" />
-                  <div className="photo-grid-hover-overlay">
-                    <span>🔍 View Full</span>
+                  <img src={url} alt={`${trip.title} memory ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', opacity: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#efe9df', fontSize: '12px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, transition: 'opacity 0.2s' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+                    onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+                  >
+                    <span>🔍 Full View</span>
                   </div>
                 </div>
               ))}
@@ -240,20 +270,26 @@ const TripDetails = () => {
 
       {/* Lightbox Modal */}
       {selectedPhoto && (
-        <div className="lightbox-overlay" onClick={() => setSelectedPhoto(null)}>
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img src={selectedPhoto} alt="Full resolution trip memory" className="lightbox-img" />
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.92)', backdropFilter: 'blur(10px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}>
+            <img src={selectedPhoto} alt="Full resolution trip memory" style={{ maxWidth: '100%', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 25px 60px rgba(0,0,0,0.9)' }} />
             <button
               type="button"
-              className="lightbox-close"
               onClick={() => setSelectedPhoto(null)}
               aria-label="Close image preview"
+              style={{ position: 'absolute', top: '-16px', right: '-16px', background: '#efe9df', color: '#07090b', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}
             >
               ✕
             </button>
           </div>
         </div>
       )}
+
+      {/* Global Footer (Deliverable #6) */}
+      <Footer />
     </div>
   );
 };
