@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import api from '../api';
+import './TripForm.css';
 
 /**
  * Reusable TripForm component for both Create and Edit operations,

@@ -1,0 +1,270 @@
+/* TripForm Modal Styles - Dark Luxury Theme */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-overlay .modal-card {
+  background: #0e1217 !important;
+  color: #efe9df !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 16px !important;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9) !important;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-overlay .modal-card .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+}
+
+.modal-overlay .modal-card .modal-header h3 {
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-size: 26px !important;
+  font-weight: 500 !important;
+  color: #efe9df !important;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-overlay .modal-card .btn-icon-close {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #8d949b !important;
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-overlay .modal-card .btn-icon-close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #efe9df !important;
+}
+
+.modal-overlay .modal-card .form-group {
+  margin-bottom: 20px;
+}
+
+.modal-overlay .modal-card .form-label {
+  color: #8d949b !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 8px !important;
+  display: block !important;
+}
+
+.modal-overlay .modal-card .required-star {
+  color: #ea580c !important;
+}
+
+.modal-overlay .modal-card .text-muted-hint {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.modal-overlay .modal-card .form-input,
+.modal-overlay .modal-card .form-textarea,
+.modal-overlay .modal-card .form-select {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: #141922 !important;
+  color: #efe9df !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 8px !important;
+  padding: 12px 14px !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  outline: none !important;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease !important;
+  color-scheme: dark !important;
+}
+
+.modal-overlay .modal-card .form-input:focus,
+.modal-overlay .modal-card .form-textarea:focus,
+.modal-overlay .modal-card .form-select:focus {
+  background: #19202c !important;
+  border-color: rgba(239, 233, 223, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(239, 233, 223, 0.08) !important;
+}
+
+.modal-overlay .modal-card .form-input::placeholder,
+.modal-overlay .modal-card .form-textarea::placeholder {
+  color: rgba(239, 233, 223, 0.35) !important;
+  font-size: 13.5px !important;
+}
+
+/* Chrome/Edge/Safari Autofill background & text fix */
+.modal-overlay .modal-card .form-input:-webkit-autofill,
+.modal-overlay .modal-card .form-input:-webkit-autofill:hover,
+.modal-overlay .modal-card .form-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #efe9df !important;
+  -webkit-box-shadow: 0 0 0 1000px #141922 inset !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Photo Upload Box */
+.modal-overlay .modal-card .photo-upload-dropzone {
+  display: block;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 24px 16px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-overlay .modal-card .photo-upload-dropzone:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(239, 233, 223, 0.4);
+}
+
+.modal-overlay .modal-card .dropzone-icon {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.modal-overlay .modal-card .dropzone-text {
+  display: block;
+  font-size: 13px;
+  color: #efe9df;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.modal-overlay .modal-card .dropzone-subtext {
+  display: block;
+  font-size: 11px;
+  color: #8d949b;
+}
+
+.modal-overlay .modal-card .photo-preview-box {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-height: 220px;
+  background: #000;
+}
+
+.modal-overlay .modal-card .photo-preview-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.modal-overlay .modal-card .btn-remove-preview {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(220, 38, 38, 0.88);
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.2s ease;
+}
+
+.modal-overlay .modal-card .btn-remove-preview:hover {
+  background: #ef4444;
+}
+
+.modal-overlay .modal-card .file-input-hidden {
+  display: none;
+}
+
+/* Modal Actions */
+.modal-overlay .modal-card .modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-overlay .modal-card .modal-actions .btn {
+  padding: 10px 22px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-overlay .modal-card .btn-secondary {
+  background: transparent !important;
+  color: #8d949b !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+.modal-overlay .modal-card .btn-secondary:hover {
+  color: #efe9df !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.modal-overlay .modal-card .btn-primary {
+  background: #efe9df !important;
+  color: #07090b !important;
+  border: 1px solid #efe9df !important;
+}
+
+.modal-overlay .modal-card .btn-primary:hover {
+  background: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(239, 233, 223, 0.25) !important;
+}
+
+.modal-overlay .modal-card .btn:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}

@@ -645,15 +645,16 @@ body {
 }
 
 .modal-card {
-  background: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-color);
+  background: #0e1217;
+  color: #efe9df;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   width: 100%;
-  max-width: 520px;
+  max-width: 540px;
   max-height: 90vh;
   overflow-y: auto;
-  padding: 28px;
+  padding: 32px;
 }
 
 .modal-header {
