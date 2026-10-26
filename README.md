@@ -454,5 +454,24 @@ TripVault has built-in dynamic local network discovery:
 
 ---
 
+## 🎨 Week 4: Polish, Responsive Design & Mobile Navigation
+
+- **Modern Toast Notifications:** Non-intrusive floating feedback toasts powered by `react-toastify` for authentication, trip CRUD actions, photo uploads, and profile edits.
+- **Collapsible Mobile Hamburger Menu:** Fully responsive navigation on mobile screens (<860px) with custom hamburger toggle drawer.
+- **Editorial Luxury Theme:** Cohesive aesthetic inspired by high-end travel journals with Cormorant Garamond serif headers, DM Sans typography, polaroid photography cards, and custom scrollbar styling.
+- **Responsive Adaptability:** Tested and optimized for 375px+ viewports with dynamic 1–2 column photo galleries.
+- **Global Footer & Attribution:** Professional footer attribution with direct GitHub repository links.
+
+---
+
+## 👨‍💻 Author
+
+Crafted by **Krish Kumar**  
+- **GitHub:** [@krish6587](https://github.com/krish6587)  
+- **Repository:** [tripvault](https://github.com/krish6587/tripvault)
+
+---
+
 ## 📄 License
 This project is open source and available under the [ISC License](LICENSE).
+
