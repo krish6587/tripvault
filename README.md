@@ -22,10 +22,33 @@ TripVault enables travelers to record and share their adventures: create trips w
 
 ---
 
-## 📸 Application Preview
+## 📸 Application Showcase & Previews
 
-![TripVault Live Application Preview](assets/screenshot.png)
-*Figure: TripVault editorial luxury landing page showcasing curated journeys, polaroid photography, and public travel profiles.*
+### 1. Editorial Landing Page — *Beyond Places. Into Moments.*
+Curated luxury travel landing interface featuring high-definition scenic banners, destination guides, and seamless navigation.
+
+![TripVault Landing Page](assets/landing-hero.png)
+
+---
+
+### 2. Personal Travel Vault & Dashboard
+Logged-in traveler dashboard showcasing personal stats (Trips, Photos, Places, Countries), real-time search & sorting, and compact Polaroid cards.
+
+![TripVault Traveler Dashboard](assets/dashboard.png)
+
+---
+
+### 3. Luxury Split-Screen Authentication & Google Sign-In
+Split-screen authentication portal with floating polaroid previews, Google OAuth 2.0 integration, and instant validation.
+
+![TripVault Authentication & Registration](assets/auth-register.png)
+
+---
+
+### 4. Journey Experience & Footer
+Storytelling banner inviting travelers to begin their journal, complete with global navigation and author attribution.
+
+![TripVault Story & Footer](assets/explore-cta.png)
 
 ---
 
