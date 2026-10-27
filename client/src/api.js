@@ -9,6 +9,10 @@ const getApiBaseUrl = () => {
     }
     return url;
   }
+  // Automatic fallback for production / Vercel deployment
+  if (typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || import.meta.env.PROD)) {
+    return 'https://tripvault-server.onrender.com/api';
+  }
   const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
   return `http://${host}:5000/api`;
 };

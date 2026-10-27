@@ -26,7 +26,7 @@ const Footer = () => {
         <span style={{ color: '#efe9df', fontFamily: "'Cormorant Garamond', serif", fontSize: '18px' }}>
           TripVault
         </span>
-        <span>© {new Date().getFullYear()} • Crafted by <strong>Krish Kumar</strong></span>
+        <span>© {new Date().getFullYear()} • Crafted by <strong>Krish Ukande</strong></span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

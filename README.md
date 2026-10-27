@@ -1,8 +1,31 @@
 # TripVault ✈️
 
+[![Live Demo on Vercel](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://tripvault-alpha-eight.vercel.app/)
+[![Backend API on Render](https://img.shields.io/badge/Backend%20API-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://tripvault-server.onrender.com)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/krish6587/tripvault)
+[![Test Suite](https://img.shields.io/badge/Test%20Suite-17%2F17%20Passed-success?style=for-the-badge)](https://github.com/krish6587/tripvault)
+
 > A modern, full-stack travel memory journal built with the **MERN Stack** (MongoDB, Express, React 18, Node.js) featuring Cloudinary photo storage, public traveler profiles, Google OAuth, and secure JWT authentication.
 
 TripVault enables travelers to record and share their adventures: create trips with rich destinations, dates, notes, and star ratings; upload photos directly to Cloudinary; showcase cover images and interactive photo galleries with lightbox view; and share public user profile pages where anyone can explore a traveler's logged journeys without requiring an account.
+
+---
+
+## 🌐 Live Deployments & Demo Links
+
+| Service | Platform | Live URL | Status |
+|---|---|---|---|
+| **Frontend Application** | **Vercel** | [https://tripvault-alpha-eight.vercel.app/](https://tripvault-alpha-eight.vercel.app/) | ✅ Live |
+| **Backend REST API** | **Render** | [https://tripvault-server.onrender.com/](https://tripvault-server.onrender.com/) | ✅ Live |
+| **API Base Endpoint** | **Render** | [https://tripvault-server.onrender.com/api](https://tripvault-server.onrender.com/api) | ✅ Active |
+| **GitHub Repository** | **GitHub** | [https://github.com/krish6587/tripvault](https://github.com/krish6587/tripvault) | ✅ Public |
+
+---
+
+## 📸 Application Preview
+
+![TripVault Live Application Preview](assets/screenshot.png)
+*Figure: TripVault editorial luxury landing page showcasing curated journeys, polaroid photography, and public travel profiles.*
 
 ---
 
@@ -466,7 +489,7 @@ TripVault has built-in dynamic local network discovery:
 
 ## 👨‍💻 Author
 
-Crafted by **Krish Kumar**  
+Crafted by **Krish Ukande**  
 - **GitHub:** [@krish6587](https://github.com/krish6587)  
 - **Repository:** [tripvault](https://github.com/krish6587/tripvault)
 
